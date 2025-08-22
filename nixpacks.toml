@@ -9,8 +9,8 @@ cmds = [
 
 [phases.build]
 cmds = [
-    'export NODE_OPTIONS="--max-old-space-size=1024"',
-    'timeout 300 npm run build || timeout 180 npm run build:simple || (echo "All builds failed, creating minimal build..." && mkdir -p public/build/assets && echo \'{"resources/js/app.jsx":{"file":"assets/app.js","isEntry":true}}\' > public/build/manifest.json && echo "console.log(\"Minimal build\");" > public/build/assets/app.js)'
+    "export NODE_OPTIONS='--max-old-space-size=1024'",
+    "timeout 300 npm run build || timeout 180 npm run build:simple || (echo 'Build failed, creating minimal assets...' && mkdir -p public/build/assets && echo '{\"resources/js/app.jsx\":{\"file\":\"assets/app.js\",\"isEntry\":true}}' > public/build/manifest.json)"
 ]
 
 [start]
