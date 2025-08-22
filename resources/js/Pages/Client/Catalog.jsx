@@ -58,55 +58,30 @@ export default function Catalog({ auth, produits, typeProduits, priceRange, sele
         }
     }, [selectedPaymentMethod]);
 
-    // Gérer l'ajout au panier
-    const addToCart = async (product) => {
+    // Gérer l'ajout au panier (méthode simplifiée comme ProductDetail)
+    const addToCart = (product) => {
         try {
-            // Récupérer la méthode de paiement depuis localStorage si pas fournie par le serveur
-            let paymentMethodId = selectedPaymentMethod?.id;
-            if (!paymentMethodId) {
-                const savedPaymentMethod = localStorage.getItem('selectedPaymentMethod');
-                if (savedPaymentMethod) {
-                    paymentMethodId = JSON.parse(savedPaymentMethod).id;
-                } else {
-                    instantToast.error(t('pleaseSelectPaymentMethodFirst'));
-                    router.visit('/client/payment-method');
-                    return;
-                }
+            // Vérifier qu'il y a bien un prix pour la méthode sélectionnée
+            if (!product.produit_prices || product.produit_prices.length === 0) {
+                instantToast.error(t('priceNotAvailable'));
+                return;
             }
 
-            // Récupérer le token CSRF
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-            if (!csrfToken) {
-                throw new Error('Token CSRF non trouvé');
-            }
-
-            // Récupérer les infos du produit avec le prix pour la méthode sélectionnée
-            const response = await fetch('/api/cart/product-info', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-                body: JSON.stringify({
-                    product_id: product.id,
-                    payment_method_id: paymentMethodId,
-                }),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Erreur HTTP:', response.status, errorText);
-                throw new Error(`Erreur HTTP ${response.status}: ${errorText}`);
-            }
-
-            const productInfo = await response.json();
-            console.log('Informations produit reçues:', productInfo);
+            const price = parseFloat(product.produit_prices[0].price) || 0;
             
-            // Vérifier que nous avons bien un prix
-            if (!productInfo.price) {
-                throw new Error('Prix du produit non disponible');
-            }
-            
+            // Créer les infos du produit
+            const productInfo = {
+                id: product.id,
+                label: product.label,
+                description: product.description,
+                image: product.image,
+                quantity: product.quantity,
+                unit: product.unit,
+                currency: product.currency,
+                price: price,
+                type_name: product.type_produit?.name
+            };
+
             // Vérifier si le produit est déjà dans le panier
             const existingCartItem = cart.find(item => item.id === product.id);
             let newCart;
@@ -124,7 +99,6 @@ export default function Catalog({ auth, produits, typeProduits, priceRange, sele
                 );
             } else {
                 // Ajouter le nouveau produit avec subtotal
-                const price = parseFloat(productInfo.price) || 0;
                 newCart = [...cart, { 
                     ...productInfo, 
                     quantity: 1,
@@ -138,7 +112,7 @@ export default function Catalog({ auth, produits, typeProduits, priceRange, sele
             
             instantToast.success(t('productAddedToCart'));
         } catch (error) {
-            console.error('Erreur détaillée lors de l\'ajout au panier:', error);
+            console.error('Erreur lors de l\'ajout au panier:', error);
             instantToast.error(t('errorAddingToCart') + ': ' + (error.message || t('unknownError')));
         }
     };
