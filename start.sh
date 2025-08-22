@@ -88,9 +88,13 @@ php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
-# Créer le lien de stockage
-echo "🔗 Création du lien de stockage..."
-php artisan storage:link --force || echo "⚠️ Lien de stockage déjà existant"
+# Créer le lien de stockage seulement si il n'existe pas
+if [ ! -L "public/storage" ]; then
+    echo "🔗 Création du lien de stockage..."
+    php artisan storage:link || echo "⚠️ Erreur lors de la création du lien"
+else
+    echo "✅ Lien de stockage déjà existant, préservation des données"
+fi
 
 # Tester la connexion à la base de données
 echo "🗄️ Test de la connexion à la base de données..."
@@ -133,9 +137,13 @@ else
     echo "👉 Veuillez ajouter un service MySQL à votre projet Railway"
 fi
 
-# Créer le lien de stockage pour les commandes
-echo "🔗 Création du lien de stockage commandes..."
-php artisan storage:link-commandes || echo "⚠️ Commande non trouvée ou déjà exécutée"
+# Créer le lien de stockage pour les commandes seulement si nécessaire
+if [ ! -d "public/storage/commandes" ]; then
+    echo "🔗 Création du lien de stockage commandes..."
+    php artisan storage:link-commandes || echo "⚠️ Commande non trouvée ou déjà exécutée"
+else
+    echo "✅ Lien de stockage commandes déjà existant"
+fi
 
 # Démarrer le serveur
 echo "🌐 Démarrage du serveur sur le port $PORT..."
