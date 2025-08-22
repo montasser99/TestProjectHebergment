@@ -10,15 +10,21 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // Créer un administrateur
-        User::create([
-            'name' => 'Admin System',
-            'email' => 'admin@amazighi.tn',
-            'phone' => '+216 71 123 456',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-            'is_blocked' => false, // Ajouté
-            'email_verified_at' => now(),
-        ]);
+        // Créer un administrateur seulement s'il n'existe pas déjà
+        if (!User::where('email', 'admin@amazighi.tn')->exists()) {
+            User::create([
+                'name' => 'Admin System',
+                'email' => 'admin@amazighi.tn', 
+                'phone' => '+216 71 123 456',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'is_blocked' => false,
+                'email_verified_at' => now(),
+            ]);
+            
+            $this->command->info('Admin user created successfully!');
+        } else {
+            $this->command->info('Admin user already exists, skipping...');
+        }
     }
 }
