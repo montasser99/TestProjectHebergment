@@ -44,11 +44,17 @@ if [ ! -f ".env" ]; then
     # Configurer les variables Railway si elles existent
     if [ -n "$MYSQLHOST" ]; then
         echo "🔧 Configuration des variables Railway MySQL..."
-        sed -i 's/DB_HOST=.*/DB_HOST='"$MYSQLHOST"'/' .env
-        sed -i 's/DB_PORT=.*/DB_PORT='"${MYSQLPORT:-3306}"'/' .env
-        sed -i 's/DB_DATABASE=.*/DB_DATABASE='"$MYSQLDATABASE"'/' .env
-        sed -i 's/DB_USERNAME=.*/DB_USERNAME='"$MYSQLUSER"'/' .env
-        sed -i 's/DB_PASSWORD=.*/DB_PASSWORD='"$MYSQLPASSWORD"'/' .env
+        sed -i "s/DB_HOST=.*/DB_HOST=$MYSQLHOST/" .env
+        sed -i "s/DB_PORT=.*/DB_PORT=${MYSQLPORT:-3306}/" .env
+        sed -i "s/DB_DATABASE=.*/DB_DATABASE=$MYSQLDATABASE/" .env
+        sed -i "s/DB_USERNAME=.*/DB_USERNAME=$MYSQLUSER/" .env
+        sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$MYSQLPASSWORD/" .env
+        
+        echo "📋 Configuration de la base de données:"
+        echo "- DB_HOST=$MYSQLHOST"
+        echo "- DB_PORT=${MYSQLPORT:-3306}"
+        echo "- DB_DATABASE=$MYSQLDATABASE"
+        echo "- DB_USERNAME=$MYSQLUSER"
     fi
     
     # Configurer l'URL de l'application
@@ -80,26 +86,43 @@ php artisan storage:link --force || echo "⚠️ Lien de stockage déjà existan
 echo "🗄️ Test de la connexion à la base de données..."
 if [ -n "$MYSQLHOST" ]; then
     echo "✅ Variables MySQL Railway détectées"
-    if php artisan migrate:status > /dev/null 2>&1; then
-        echo "✅ Connexion à la base de données réussie"
-        
-        # Exécuter les migrations
-        echo "📝 Exécution des migrations..."
-        php artisan migrate --force
-        echo "✅ Migrations terminées"
-        
-        # Seeder les données administrateur (ignorer si déjà fait)
-        echo "🌱 Seedeur des données..."
-        php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
-        echo "✅ Données seedées"
-    else
-        echo "❌ Impossible de se connecter à la base de données"
-        echo "Détails de la base de données pour debug:"
-        echo "MYSQLHOST: $MYSQLHOST"
-        echo "MYSQLDATABASE: $MYSQLDATABASE"
-        echo "MYSQLUSER: $MYSQLUSER"
-        exit 1
-    fi
+    
+    # Attendre quelques secondes pour que MySQL soit prêt
+    echo "⏱️ Attente de la disponibilité de MySQL..."
+    sleep 5
+    
+    # Essayer la connexion plusieurs fois
+    RETRY_COUNT=0
+    MAX_RETRIES=3
+    
+    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+        if php artisan migrate:status > /dev/null 2>&1; then
+            echo "✅ Connexion à la base de données réussie"
+            
+            # Exécuter les migrations
+            echo "📝 Exécution des migrations..."
+            php artisan migrate --force
+            echo "✅ Migrations terminées"
+            
+            # Seeder les données administrateur (ignorer si déjà fait)
+            echo "🌱 Seedeur des données..."
+            php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
+            echo "✅ Données seedées"
+            break
+        else
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "⚠️ Tentative $RETRY_COUNT/$MAX_RETRIES échouée, nouvelle tentative dans 3s..."
+                sleep 3
+            else
+                echo "❌ Impossible de se connecter à la base de données après $MAX_RETRIES tentatives"
+                echo "📋 Configuration actuelle:"
+                php artisan config:show database.connections.mysql || echo "Erreur lors de l'affichage de la config"
+                echo "🔍 Test de connexion directe..."
+                php artisan tinker --execute="DB::connection()->getPdo(); echo 'Connexion OK';" || echo "Connexion directe échouée"
+            fi
+        fi
+    done
 else
     echo "⚠️ Variables MySQL Railway non trouvées - démarrage sans base de données"
     echo "👉 Veuillez ajouter un service MySQL à votre projet Railway"
