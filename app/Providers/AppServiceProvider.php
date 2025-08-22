@@ -24,14 +24,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         
-        // Force HTTPS in production
-        if (config('app.env') === 'production' || config('app.force_https')) {
-            URL::forceScheme('https');
-            URL::forceRootUrl(config('app.url'));
+        // Configure trusted proxies for Railway
+        if (config('app.env') === 'production') {
+            // Trust all proxies for Railway
+            request()->setTrustedProxies(['*'], \Illuminate\Http\Request::HEADER_X_FORWARDED_ALL);
             
-            // Force HTTPS for all requests
-            if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-                $_SERVER['HTTPS'] = 'on';
+            // Force HTTPS URL generation
+            URL::forceScheme('https');
+            if (config('app.url')) {
+                URL::forceRootUrl(config('app.url'));
             }
         }
     }
