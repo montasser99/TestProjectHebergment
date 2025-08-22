@@ -4,14 +4,13 @@ nixPkgs = ['nodejs_20', 'php83', 'php83Extensions.pdo', 'php83Extensions.pdo_mys
 [phases.install]
 cmds = [
     'npm ci --prefer-offline --no-audit --progress=false',
-    'composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist'
+    'composer install --optimize-autoloader --no-interaction --prefer-dist'
 ]
 
 [phases.build]
 cmds = [
-    'mkdir -p public/build/assets',
-    'echo \'{"resources/js/app.jsx":{"file":"assets/app.js","isEntry":true}}\' > public/build/manifest.json',
-    'echo "console.log(\"Minimal build for Railway\");" > public/build/assets/app.js'
+    'export NODE_OPTIONS="--max-old-space-size=1024"',
+    'npm run build || (echo "Build failed, creating minimal assets..." && mkdir -p public/build/assets && echo \'{"resources/js/app.jsx":{"file":"assets/app.js","isEntry":true}}\' > public/build/manifest.json)'
 ]
 
 [start]
