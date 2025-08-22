@@ -6,25 +6,22 @@ export default defineConfig({
     plugins: [
         laravel({
             input: 'resources/js/app.jsx',
-            refresh: true,
+            refresh: false,
         }),
-        react(),
+        react({
+            jsxRuntime: 'automatic',
+        }),
     ],
     build: {
+        sourcemap: false,
+        minify: false,
         rollupOptions: {
             output: {
-                manualChunks: undefined,
+                manualChunks: () => 'everything.js',
             },
         },
-        chunkSizeWarningLimit: 1600,
-        minify: 'esbuild',
     },
-    esbuild: {
-        logOverride: { 'this-is-undefined-in-esm': 'silent' }
-    },
-    server: {
-        hmr: {
-            host: 'localhost',
-        },
+    optimizeDeps: {
+        include: ['react', 'react-dom'],
     },
 });

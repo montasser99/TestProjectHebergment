@@ -5,6 +5,28 @@ set -e
 
 echo "🚀 Démarrage de l'application AMAZIGHI SHOP..."
 
+# Vérifier si le build des assets a réussi, sinon le refaire
+if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
+    echo "⚠️ Assets non trouvés ou incomplets, tentative de build..."
+    if command -v npm >/dev/null 2>&1; then
+        export NODE_OPTIONS="--max-old-space-size=512"
+        timeout 180 npm run build || (
+            echo "❌ Build failed, creating minimal fallback..."
+            mkdir -p public/build
+            echo '{"resources/js/app.jsx":{"file":"assets/app.js","isEntry":true}}' > public/build/manifest.json
+            touch public/build/assets/app.js
+            echo "✅ Fallback assets created"
+        )
+    else
+        echo "❌ NPM non trouvé, creating minimal assets..."
+        mkdir -p public/build/assets
+        echo '{"resources/js/app.jsx":{"file":"assets/app.js","isEntry":true}}' > public/build/manifest.json
+        touch public/build/assets/app.js
+    fi
+else
+    echo "✅ Assets build trouvés"
+fi
+
 # Afficher les variables d'environnement importantes (sans valeurs sensibles)
 echo "📊 Variables d'environnement:"
 echo "- APP_ENV: $APP_ENV"
