@@ -34,6 +34,27 @@ echo "- APP_DEBUG: $APP_DEBUG"
 echo "- DB_CONNECTION: $DB_CONNECTION"
 echo "- PORT: $PORT"
 
+# Créer un fichier .env minimal si il n'existe pas
+if [ ! -f ".env" ]; then
+    echo "📝 Création du fichier .env..."
+    cp .env.example .env 2>/dev/null || echo "APP_KEY=" > .env
+    
+    # Configurer les variables Railway si elles existent
+    if [ -n "$MYSQLHOST" ]; then
+        echo "🔧 Configuration des variables Railway MySQL..."
+        echo "DB_HOST=$MYSQLHOST" >> .env
+        echo "DB_PORT=${MYSQLPORT:-3306}" >> .env
+        echo "DB_DATABASE=$MYSQLDATABASE" >> .env
+        echo "DB_USERNAME=$MYSQLUSER" >> .env
+        echo "DB_PASSWORD=$MYSQLPASSWORD" >> .env
+    fi
+    
+    # Configurer l'URL de l'application
+    if [ -n "$RAILWAY_STATIC_URL" ]; then
+        echo "APP_URL=$RAILWAY_STATIC_URL" >> .env
+    fi
+fi
+
 # Générer la clé d'application si elle n'existe pas
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
     echo "🔑 Génération de la clé d'application..."
