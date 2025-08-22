@@ -95,34 +95,29 @@ if [ -n "$MYSQLHOST" ]; then
     RETRY_COUNT=0
     MAX_RETRIES=3
     
-    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-        if php artisan migrate:status > /dev/null 2>&1; then
-            echo "✅ Connexion à la base de données réussie"
-            
-            # Exécuter les migrations
-            echo "📝 Exécution des migrations..."
-            php artisan migrate --force
-            echo "✅ Migrations terminées"
-            
-            # Seeder les données administrateur (ignorer si déjà fait)
-            echo "🌱 Seedeur des données..."
-            php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
-            echo "✅ Données seedées"
-            break
-        else
-            RETRY_COUNT=$((RETRY_COUNT + 1))
-            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-                echo "⚠️ Tentative $RETRY_COUNT/$MAX_RETRIES échouée, nouvelle tentative dans 3s..."
-                sleep 3
-            else
-                echo "❌ Impossible de se connecter à la base de données après $MAX_RETRIES tentatives"
-                echo "📋 Configuration actuelle:"
-                php artisan config:show database.connections.mysql || echo "Erreur lors de l'affichage de la config"
-                echo "🔍 Test de connexion directe..."
-                php artisan tinker --execute="DB::connection()->getPdo(); echo 'Connexion OK';" || echo "Connexion directe échouée"
-            fi
-        fi
-    done
+    # Test direct de connexion d'abord
+    echo "🔍 Test de connexion directe..."
+    if php artisan tinker --execute="DB::connection()->getPdo(); echo 'Connexion OK';" 2>/dev/null; then
+        echo "✅ Connexion à la base de données réussie"
+        
+        # Créer la table migrations si elle n'existe pas
+        echo "📝 Initialisation des migrations..."
+        php artisan migrate:install --force 2>/dev/null || echo "Table migrations déjà existante"
+        
+        # Exécuter les migrations
+        echo "📝 Exécution des migrations..."
+        php artisan migrate --force
+        echo "✅ Migrations terminées"
+        
+        # Seeder les données administrateur (ignorer si déjà fait)
+        echo "🌱 Seedeur des données..."
+        php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
+        echo "✅ Données seedées"
+    else
+        echo "❌ Impossible de se connecter à la base de données"
+        echo "📋 Configuration actuelle:"
+        php artisan config:show database.connections.mysql || echo "Erreur lors de l'affichage de la config"
+    fi
 else
     echo "⚠️ Variables MySQL Railway non trouvées - démarrage sans base de données"
     echo "👉 Veuillez ajouter un service MySQL à votre projet Railway"
