@@ -42,16 +42,16 @@ if [ ! -f ".env" ]; then
     # Configurer les variables Railway si elles existent
     if [ -n "$MYSQLHOST" ]; then
         echo "🔧 Configuration des variables Railway MySQL..."
-        echo "DB_HOST=$MYSQLHOST" >> .env
-        echo "DB_PORT=${MYSQLPORT:-3306}" >> .env
-        echo "DB_DATABASE=$MYSQLDATABASE" >> .env
-        echo "DB_USERNAME=$MYSQLUSER" >> .env
-        echo "DB_PASSWORD=$MYSQLPASSWORD" >> .env
+        sed -i 's/DB_HOST=.*/DB_HOST='"$MYSQLHOST"'/' .env
+        sed -i 's/DB_PORT=.*/DB_PORT='"${MYSQLPORT:-3306}"'/' .env
+        sed -i 's/DB_DATABASE=.*/DB_DATABASE='"$MYSQLDATABASE"'/' .env
+        sed -i 's/DB_USERNAME=.*/DB_USERNAME='"$MYSQLUSER"'/' .env
+        sed -i 's/DB_PASSWORD=.*/DB_PASSWORD='"$MYSQLPASSWORD"'/' .env
     fi
     
     # Configurer l'URL de l'application
     if [ -n "$RAILWAY_STATIC_URL" ]; then
-        echo "APP_URL=$RAILWAY_STATIC_URL" >> .env
+        sed -i 's|APP_URL=.*|APP_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
     fi
 fi
 
