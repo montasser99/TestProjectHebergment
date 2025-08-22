@@ -60,8 +60,8 @@ if [ ! -f ".env" ]; then
     # Configurer l'URL de l'application
     if [ -n "$RAILWAY_STATIC_URL" ]; then
         sed -i 's|APP_URL=.*|APP_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
-        echo "ASSET_URL=https://$RAILWAY_STATIC_URL" >> .env
-        echo "APP_FORCE_HTTPS=true" >> .env
+        sed -i 's|ASSET_URL=.*|ASSET_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
+        sed -i 's|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|' .env
     fi
 fi
 
