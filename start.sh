@@ -62,6 +62,7 @@ if [ ! -f ".env" ]; then
         sed -i 's|APP_URL=.*|APP_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
         sed -i 's|ASSET_URL=.*|ASSET_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
         sed -i 's|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|' .env
+        sed -i 's|APP_ENV=.*|APP_ENV=production|' .env
         
         # Configurer les cookies de session pour HTTPS en production
         sed -i 's|SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|' .env
@@ -73,20 +74,17 @@ if [ ! -f ".env" ]; then
     fi
 fi
 
-# Générer la clé d'application si elle n'existe pas
-if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
-    echo "🔑 Génération de la clé d'application..."
-    php artisan key:generate --force
-    echo "✅ Clé d'application générée"
-else
-    echo "✅ Clé d'application déjà présente"
-fi
+# Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
+echo "🔑 Génération de la clé d'application..."
+php artisan key:generate --force
+echo "✅ Clé d'application générée - toutes les anciennes sessions sont invalidées"
 
-# Nettoyer le cache de configuration
+# Nettoyer le cache de configuration et les sessions
 echo "🧹 Nettoyage du cache..."
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
+php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cache --force > /dev/null 2>&1 || echo "Session cleanup completed"
 
 # Créer le lien de stockage seulement si il n'existe pas
 if [ ! -L "public/storage" ]; then
