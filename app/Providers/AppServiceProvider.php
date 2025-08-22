@@ -27,7 +27,13 @@ class AppServiceProvider extends ServiceProvider
         // Configure trusted proxies for Railway
         if (config('app.env') === 'production') {
             // Trust all proxies for Railway
-            request()->setTrustedProxies(['*'], \Illuminate\Http\Request::HEADER_X_FORWARDED_ALL);
+            request()->setTrustedProxies(
+                ['*'], 
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
+            );
             
             // Force HTTPS URL generation
             URL::forceScheme('https');
