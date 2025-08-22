@@ -33,6 +33,8 @@ echo "- APP_ENV: $APP_ENV"
 echo "- APP_DEBUG: $APP_DEBUG" 
 echo "- DB_CONNECTION: $DB_CONNECTION"
 echo "- PORT: $PORT"
+echo "- MYSQLHOST: $MYSQLHOST"
+echo "- MYSQLDATABASE: $MYSQLDATABASE"
 
 # Créer un fichier .env minimal si il n'existe pas
 if [ ! -f ".env" ]; then
@@ -76,25 +78,31 @@ php artisan storage:link --force || echo "⚠️ Lien de stockage déjà existan
 
 # Tester la connexion à la base de données
 echo "🗄️ Test de la connexion à la base de données..."
-if php artisan migrate:status > /dev/null 2>&1; then
-    echo "✅ Connexion à la base de données réussie"
-    
-    # Exécuter les migrations
-    echo "📝 Exécution des migrations..."
-    php artisan migrate --force
-    echo "✅ Migrations terminées"
-    
-    # Seeder les données administrateur (ignorer si déjà fait)
-    echo "🌱 Seedeur des données..."
-    php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
-    echo "✅ Données seedées"
+if [ -n "$MYSQLHOST" ]; then
+    echo "✅ Variables MySQL Railway détectées"
+    if php artisan migrate:status > /dev/null 2>&1; then
+        echo "✅ Connexion à la base de données réussie"
+        
+        # Exécuter les migrations
+        echo "📝 Exécution des migrations..."
+        php artisan migrate --force
+        echo "✅ Migrations terminées"
+        
+        # Seeder les données administrateur (ignorer si déjà fait)
+        echo "🌱 Seedeur des données..."
+        php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
+        echo "✅ Données seedées"
+    else
+        echo "❌ Impossible de se connecter à la base de données"
+        echo "Détails de la base de données pour debug:"
+        echo "MYSQLHOST: $MYSQLHOST"
+        echo "MYSQLDATABASE: $MYSQLDATABASE"
+        echo "MYSQLUSER: $MYSQLUSER"
+        exit 1
+    fi
 else
-    echo "❌ Impossible de se connecter à la base de données"
-    echo "Détails de la base de données pour debug:"
-    echo "DB_HOST: ${DB_HOST:-$MYSQLHOST}"
-    echo "DB_PORT: ${DB_PORT:-$MYSQLPORT}"
-    echo "DB_DATABASE: ${DB_DATABASE:-$MYSQLDATABASE}"
-    exit 1
+    echo "⚠️ Variables MySQL Railway non trouvées - démarrage sans base de données"
+    echo "👉 Veuillez ajouter un service MySQL à votre projet Railway"
 fi
 
 # Créer le lien de stockage pour les commandes
