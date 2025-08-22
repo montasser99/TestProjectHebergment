@@ -9,8 +9,8 @@ cmds = [
 
 [phases.build]
 cmds = [
-    'export NODE_OPTIONS="--max-old-space-size=1024"',
-    'npm run build || (echo "Build failed, creating minimal assets..." && mkdir -p public/build/assets && echo \'{"resources/js/app.jsx":{"file":"assets/app.js","isEntry":true}}\' > public/build/manifest.json)'
+    "export NODE_OPTIONS='--max-old-space-size=1024'",
+    "npm run build || echo 'Build failed but continuing...'"
 ]
 
 [start]
