@@ -62,6 +62,14 @@ if [ ! -f ".env" ]; then
         sed -i 's|APP_URL=.*|APP_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
         sed -i 's|ASSET_URL=.*|ASSET_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
         sed -i 's|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|' .env
+        
+        # Configurer les cookies de session pour HTTPS en production
+        sed -i 's|SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|' .env
+        sed -i 's|SESSION_SAME_SITE=.*|SESSION_SAME_SITE=lax|' .env
+        sed -i 's|SESSION_DOMAIN=.*|SESSION_DOMAIN=.'"${RAILWAY_STATIC_URL}"'|' .env
+        
+        # Configurer les proxies de confiance pour Railway
+        sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
 fi
 
