@@ -27,6 +27,30 @@ else
     echo "✅ Assets build trouvés"
 fi
 
+# Configurer MySQL Railway AVANT tout
+if [ -n "$MYSQLHOST" ]; then
+    echo "🔧 Configuration MySQL Railway (prioritaire)..."
+    export DB_CONNECTION=mysql
+    export DB_HOST="$MYSQLHOST"
+    export DB_PORT="${MYSQLPORT:-3306}"
+    export DB_DATABASE="$MYSQLDATABASE"
+    export DB_USERNAME="$MYSQLUSER"
+    export DB_PASSWORD="$MYSQLPASSWORD"
+    
+    # Créer un fichier .env temporaire avec les bonnes valeurs
+    cat > .env.railway << EOF
+APP_KEY=base64:$(php -r "echo base64_encode(random_bytes(32));")
+DB_CONNECTION=mysql
+DB_HOST=$MYSQLHOST
+DB_PORT=${MYSQLPORT:-3306}
+DB_DATABASE=$MYSQLDATABASE
+DB_USERNAME=$MYSQLUSER
+DB_PASSWORD=$MYSQLPASSWORD
+EOF
+    
+    echo "✅ Configuration Railway .env créée"
+fi
+
 # Afficher les variables d'environnement importantes (sans valeurs sensibles)
 echo "📊 Variables d'environnement:"
 echo "- APP_ENV: $APP_ENV"
@@ -128,31 +152,47 @@ echo "🗄️ Test de la connexion à la base de données..."
 if [ -n "$MYSQLHOST" ]; then
     echo "✅ Variables MySQL Railway détectées"
     
-    # Attendre quelques secondes pour que MySQL soit prêt
+    # Attendre que MySQL soit prêt avec retry logic
     echo "⏱️ Attente de la disponibilité de MySQL..."
-    sleep 5
-    
-    # Essayer la connexion plusieurs fois
     RETRY_COUNT=0
-    MAX_RETRIES=3
+    MAX_RETRIES=10
     
-    # Test direct de connexion d'abord
-    echo "🔍 Test de connexion directe..."
-    if php artisan tinker --execute="DB::connection()->getPdo(); echo 'Connexion OK';" 2>/dev/null; then
-        echo "✅ Connexion à la base de données réussie"
+    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+        echo "🔍 Test de connexion MySQL (tentative $((RETRY_COUNT + 1))/$MAX_RETRIES)..."
+        
+        if DB_CONNECTION=mysql DB_HOST="$MYSQLHOST" DB_PORT="$MYSQLPORT" DB_DATABASE="$MYSQLDATABASE" DB_USERNAME="$MYSQLUSER" DB_PASSWORD="$MYSQLPASSWORD" php artisan tinker --execute="DB::connection('mysql')->getPdo(); echo 'Connexion MySQL OK';" 2>/dev/null; then
+            echo "✅ Connexion MySQL Railway réussie"
+            break
+        else
+            echo "⚠️ Connexion MySQL échouée, retry dans 3s..."
+            sleep 3
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+        fi
+    done
+    
+    if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+        echo "❌ Impossible de se connecter à MySQL après $MAX_RETRIES tentatives"
+        echo "🔧 Configuration MySQL actuelle:"
+        echo "  - Host: $MYSQLHOST:$MYSQLPORT"
+        echo "  - Database: $MYSQLDATABASE"
+        echo "  - User: $MYSQLUSER"
+        exit 1
+    fi
+    
+    if true; then
         
         # Créer la table migrations si elle n'existe pas
         echo "📝 Initialisation des migrations..."
-        php artisan migrate:install 2>/dev/null || echo "Table migrations déjà existante"
+        DB_CONNECTION=mysql DB_HOST="$MYSQLHOST" DB_PORT="$MYSQLPORT" DB_DATABASE="$MYSQLDATABASE" DB_USERNAME="$MYSQLUSER" DB_PASSWORD="$MYSQLPASSWORD" php artisan migrate:install 2>/dev/null || echo "Table migrations déjà existante"
         
-        # Forcer l'utilisation de MySQL pour les migrations
+        # Exécuter les migrations avec MySQL forcé
         echo "📝 Exécution des migrations avec MySQL..."
-        DB_CONNECTION=mysql php artisan migrate --force
+        DB_CONNECTION=mysql DB_HOST="$MYSQLHOST" DB_PORT="$MYSQLPORT" DB_DATABASE="$MYSQLDATABASE" DB_USERNAME="$MYSQLUSER" DB_PASSWORD="$MYSQLPASSWORD" php artisan migrate --force
         echo "✅ Migrations terminées"
         
         # Seeder les données administrateur (ignorer si déjà fait)
         echo "🌱 Seedeur des données..."
-        php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
+        DB_CONNECTION=mysql DB_HOST="$MYSQLHOST" DB_PORT="$MYSQLPORT" DB_DATABASE="$MYSQLDATABASE" DB_USERNAME="$MYSQLUSER" DB_PASSWORD="$MYSQLPASSWORD" php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
         echo "✅ Données seedées"
     else
         echo "❌ Impossible de se connecter à la base de données"
