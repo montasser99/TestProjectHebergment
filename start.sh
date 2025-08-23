@@ -62,8 +62,34 @@ echo "- MYSQLDATABASE: $MYSQLDATABASE"
 
 # Créer un fichier .env minimal si il n'existe pas
 if [ ! -f ".env" ]; then
-    echo "📝 Création du fichier .env..."
-    cp .env.example .env 2>/dev/null || echo "APP_KEY=" > .env
+    echo "📝 Création du fichier .env à partir de .env.example..."
+    cp .env.example .env 2>/dev/null || cat > .env << 'ENVEOF'
+APP_NAME="AMAZIGHI SHOP"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
+
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@amazighishop.com
+MAIL_FROM_NAME="AMAZIGHI SHOP"
+ENVEOF
     
     # Configurer les variables Railway si elles existent
     if [ -n "$MYSQLHOST" ]; then
@@ -118,13 +144,36 @@ if [ -f ".env" ]; then
     sed -i 's/MAIL_PASSWORD="rzmh uvio zygd eony"/MAIL_PASSWORD=rzmhuviozygeony/' .env
     sed -i 's/MAIL_PASSWORD="\([^"]*\)"/MAIL_PASSWORD=\1/' .env
     
-    # Tester si le fichier .env est maintenant valide
-    if php -r "try { (new Symfony\Component\Dotenv\Dotenv())->load('.env'); echo 'VALID'; } catch (Exception \$e) { echo 'INVALID: ' . \$e->getMessage(); }"; then
-        echo "✅ Syntaxe .env corrigée et validée"
-    else
-        echo "⚠️ .env encore invalide, utilisation des variables Railway"
-        rm -f .env
-    fi
+    # Au lieu de supprimer .env, créer un .env minimal valide
+    echo "⚠️ Création d'un .env minimal pour Railway..."
+    cat > .env << EOF
+APP_NAME="AMAZIGHI SHOP"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=https://\${RAILWAY_STATIC_URL:-localhost}
+
+DB_CONNECTION=mysql
+DB_HOST=\${MYSQLHOST}
+DB_PORT=\${MYSQLPORT:-3306}
+DB_DATABASE=\${MYSQLDATABASE}
+DB_USERNAME=\${MYSQLUSER}
+DB_PASSWORD=\${MYSQLPASSWORD}
+
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=\${MAIL_USERNAME}
+MAIL_PASSWORD=\${MAIL_PASSWORD}
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@amazighishop.com
+MAIL_FROM_NAME="AMAZIGHI SHOP"
+EOF
+    echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
