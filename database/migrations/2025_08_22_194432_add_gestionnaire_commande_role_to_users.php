@@ -12,8 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modifier l'ENUM pour ajouter le rôle 'gestionnaire_commande'
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'client', 'gestionnaire_commande') DEFAULT 'client'");
+        // Vérifier si nous sommes sur MySQL ou SQLite et adapter
+        if (DB::getDriverName() === 'mysql') {
+            // MySQL : utiliser ENUM
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'client', 'gestionnaire_commande') DEFAULT 'client'");
+        } else {
+            // SQLite/autres : utiliser une approche compatible
+            Schema::table('users', function (Blueprint $table) {
+                // SQLite ne supporte pas ENUM, on laisse le VARCHAR existant
+                // Le contrôle sera fait au niveau application
+            });
+        }
     }
 
     /**
@@ -21,11 +30,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Remettre l'ENUM à son état original
-        // D'abord, s'assurer qu'aucun utilisateur n'a le rôle 'gestionnaire_commande'
+        // S'assurer qu'aucun utilisateur n'a le rôle 'gestionnaire_commande'
         DB::table('users')->where('role', 'gestionnaire_commande')->update(['role' => 'client']);
         
-        // Puis modifier l'ENUM pour supprimer le rôle
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'client') DEFAULT 'client'");
+        // Remettre l'ENUM à son état original si on est sur MySQL
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'client') DEFAULT 'client'");
+        }
+        // SQLite : pas besoin de modification de structure
     }
 };

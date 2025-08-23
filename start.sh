@@ -44,6 +44,7 @@ if [ ! -f ".env" ]; then
     # Configurer les variables Railway si elles existent
     if [ -n "$MYSQLHOST" ]; then
         echo "🔧 Configuration des variables Railway MySQL..."
+        sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/" .env
         sed -i "s/DB_HOST=.*/DB_HOST=$MYSQLHOST/" .env
         sed -i "s/DB_PORT=.*/DB_PORT=${MYSQLPORT:-3306}/" .env
         sed -i "s/DB_DATABASE=.*/DB_DATABASE=$MYSQLDATABASE/" .env
@@ -142,11 +143,11 @@ if [ -n "$MYSQLHOST" ]; then
         
         # Créer la table migrations si elle n'existe pas
         echo "📝 Initialisation des migrations..."
-        php artisan migrate:install --force 2>/dev/null || echo "Table migrations déjà existante"
+        php artisan migrate:install 2>/dev/null || echo "Table migrations déjà existante"
         
-        # Exécuter les migrations
-        echo "📝 Exécution des migrations..."
-        php artisan migrate --force
+        # Forcer l'utilisation de MySQL pour les migrations
+        echo "📝 Exécution des migrations avec MySQL..."
+        DB_CONNECTION=mysql php artisan migrate --force
         echo "✅ Migrations terminées"
         
         # Seeder les données administrateur (ignorer si déjà fait)
