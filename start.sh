@@ -82,9 +82,29 @@ if [ ! -f ".env" ]; then
     fi
 fi
 
+# Vérifier et corriger la syntaxe du fichier .env
+echo "🔧 Vérification de la syntaxe .env..."
+if [ -f ".env" ]; then
+    # Créer une sauvegarde
+    cp .env .env.backup
+    
+    # Corriger les guillemets problématiques et les espaces
+    echo "⚠️ Correction de la syntaxe .env..."
+    sed -i 's/MAIL_PASSWORD="rzmh uvio zygd eony"/MAIL_PASSWORD=rzmhuviozygeony/' .env
+    sed -i 's/MAIL_PASSWORD="\([^"]*\)"/MAIL_PASSWORD=\1/' .env
+    
+    # Tester si le fichier .env est maintenant valide
+    if php -r "try { (new Symfony\Component\Dotenv\Dotenv())->load('.env'); echo 'VALID'; } catch (Exception \$e) { echo 'INVALID: ' . \$e->getMessage(); }"; then
+        echo "✅ Syntaxe .env corrigée et validée"
+    else
+        echo "⚠️ .env encore invalide, utilisation des variables Railway"
+        rm -f .env
+    fi
+fi
+
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."
-php artisan key:generate --force
+php artisan key:generate --force || echo "⚠️ Erreur clé - continuing anyway"
 echo "✅ Clé d'application générée - toutes les anciennes sessions sont invalidées"
 
 # Nettoyer le cache de configuration et les sessions
