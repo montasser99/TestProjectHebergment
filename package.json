@@ -5,6 +5,7 @@
     "scripts": {
         "build": "vite build",
         "build:simple": "vite build --config vite.config.simple.js",
+        "build:railway": "NODE_ENV=production vite build --mode production",
         "dev": "vite"
     },
     "devDependencies": {

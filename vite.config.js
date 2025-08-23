@@ -11,6 +11,7 @@ export default defineConfig({
         react(),
     ],
     build: {
+        outDir: 'public/build',
         rollupOptions: {
             output: {
                 manualChunks: undefined,

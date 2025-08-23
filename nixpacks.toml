@@ -9,8 +9,9 @@ cmds = [
 
 [phases.build]
 cmds = [
-    'export NODE_OPTIONS="--max-old-space-size=1024"',
-    'npm run build || echo "Build failed but continuing..."'
+    'export NODE_OPTIONS="--max-old-space-size=2048"',
+    'export NODE_ENV=production',
+    'npm run build:railway'
 ]
 
 [start]

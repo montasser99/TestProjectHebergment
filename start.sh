@@ -116,6 +116,18 @@ ENVEOF
         sed -i "s|ASSET_URL=.*|ASSET_URL=https://$RAILWAY_STATIC_URL|" .env || echo "ASSET_URL=https://$RAILWAY_STATIC_URL" >> .env
         sed -i "s|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|" .env || echo "APP_FORCE_HTTPS=true" >> .env
         sed -i "s|APP_ENV=.*|APP_ENV=production|" .env
+    elif [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
+        echo "🔧 Configuration URL Railway: https://$RAILWAY_PUBLIC_DOMAIN"
+        sed -i "s|APP_URL=.*|APP_URL=https://$RAILWAY_PUBLIC_DOMAIN|" .env
+        sed -i "s|ASSET_URL=.*|ASSET_URL=https://$RAILWAY_PUBLIC_DOMAIN|" .env || echo "ASSET_URL=https://$RAILWAY_PUBLIC_DOMAIN" >> .env
+        sed -i "s|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|" .env || echo "APP_FORCE_HTTPS=true" >> .env
+        sed -i "s|APP_ENV=.*|APP_ENV=production|" .env
+    else
+        echo "🔧 Configuration URL Railway par défaut: https://amazighi-shop.up.railway.app"
+        sed -i "s|APP_URL=.*|APP_URL=https://amazighi-shop.up.railway.app|" .env
+        sed -i "s|ASSET_URL=.*|ASSET_URL=https://amazighi-shop.up.railway.app|" .env || echo "ASSET_URL=https://amazighi-shop.up.railway.app" >> .env
+        sed -i "s|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|" .env || echo "APP_FORCE_HTTPS=true" >> .env
+        sed -i "s|APP_ENV=.*|APP_ENV=production|" .env
         
         # Configurer les cookies de session pour HTTPS en production
         sed -i 's|SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|' .env
@@ -153,7 +165,8 @@ APP_NAME="AMAZIGHI SHOP"
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
-APP_URL=https://localhost
+APP_URL=https://amazighi-shop.up.railway.app
+ASSET_URL=https://amazighi-shop.up.railway.app
 
 DB_CONNECTION=mysql
 DB_HOST=$MYSQLHOST
