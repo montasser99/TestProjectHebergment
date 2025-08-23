@@ -88,13 +88,13 @@ export default function Index({ auth, typeProduits, filters }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
                         {t('productTypeManagement')}
                     </h2>
                     <Link
                         href="/admin/type-produits/create"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-200 w-full sm:w-auto"
                     >
                         <PlusIcon className="h-4 w-4" />
                         <span>{t('addProductType')}</span>
@@ -108,8 +108,8 @@ export default function Index({ auth, typeProduits, filters }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* Filtres */}
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                        <div className="p-6">
-                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+                        <div className="p-4 sm:p-6">
+                            <form onSubmit={handleSearch} className="space-y-4 sm:space-y-0 sm:flex sm:gap-4">
                                 <div className="flex-1">
                                     <div className="relative">
                                         <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -118,23 +118,24 @@ export default function Index({ auth, typeProduits, filters }) {
                                             placeholder={t('search')}
                                             value={search}
                                             onChange={(e) => setSearch(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                            className="w-full pl-10 pr-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-base sm:text-sm"
                                         />
                                     </div>
                                 </div>
                                 
                                 <button
                                     type="submit"
-                                    className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 sm:py-2 rounded-lg transition-colors duration-200 font-medium text-base sm:text-sm flex items-center justify-center space-x-2"
                                 >
-                                    {t('search')}
+                                    <MagnifyingGlassIcon className="h-5 w-5 sm:hidden" />
+                                    <span>{t('search')}</span>
                                 </button>
                             </form>
                         </div>
                     </div>
 
-                    {/* Tableau des types de produits */}
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    {/* Tableau des types de produits - Desktop */}
+                    <div className="hidden md:block bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead className="bg-gray-50 dark:bg-gray-700">
@@ -218,65 +219,130 @@ export default function Index({ auth, typeProduits, filters }) {
                                 </tbody>
                             </table>
                         </div>
+                    </div>
 
-                        {/* Pagination */}
-                        {typeProduits.links && (
-                            <div className="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1 flex justify-between sm:hidden">
-                                        {typeProduits.prev_page_url && (
-                                            <Link
-                                                href={typeProduits.prev_page_url}
-                                                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                            >
-                                                {t('previous')}
-                                            </Link>
-                                        )}
-                                        {typeProduits.next_page_url && (
-                                            <Link
-                                                href={typeProduits.next_page_url}
-                                                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                            >
-                                                {t('next')}
-                                            </Link>
-                                        )}
+                    {/* Version Mobile - Cards */}
+                    <div className="md:hidden space-y-4">
+                        {typeProduits.data.length === 0 ? (
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 text-center">
+                                <div className="text-gray-500 dark:text-gray-400">
+                                    {t('noProductTypesFound')}
+                                </div>
+                            </div>
+                        ) : (
+                            typeProduits.data.map((typeProduit) => (
+                                <div key={typeProduit.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
+                                    {/* Header avec icône et nom */}
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center text-white">
+                                                <TagIcon className="h-6 w-6" />
+                                            </div>
+                                            <div>
+                                                <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                    {typeProduit.name}
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                        {typeProduit.produits_count} {t('products')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                        <div>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300">
-                                                {t('showingResults', { from: typeProduits.from, to: typeProduits.to, total: typeProduits.total })}
-                                            </p>
+
+                                    {/* Informations */}
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex items-center text-sm">
+                                            <span className="text-gray-500 dark:text-gray-400 w-20 font-medium">{t('created')}:</span>
+                                            <span className="text-gray-900 dark:text-gray-100">{formatDateTime(typeProduit.created_at)}</span>
                                         </div>
-                                        <div>
-                                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                                                {typeProduits.links.map((link, index) => (
-                                                    <Link
-                                                        key={index}
-                                                        href={link.url || '#'}
-                                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${
-                                                            link.active
-                                                                ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-900 dark:border-blue-600 dark:text-blue-200'
-                                                                : link.url
-                                                                ? 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
-                                                                : 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600'
-                                                        } ${
-                                                            index === 0 ? 'rounded-l-md' : ''
-                                                        } ${
-                                                            index === typeProduits.links.length - 1 ? 'rounded-r-md' : ''
-                                                        }`}
-                                                    >
-                                                        {link.label.includes('Previous') ? t('previous') : 
-                                                         link.label.includes('Next') ? t('next') : 
-                                                         <span dangerouslySetInnerHTML={{ __html: link.label }} />}
-                                                    </Link>
-                                                ))}
-                                            </nav>
+                                        <div className="flex items-center text-sm">
+                                            <span className="text-gray-500 dark:text-gray-400 w-20 font-medium">{t('updated')}:</span>
+                                            <span className="text-gray-900 dark:text-gray-100">{formatDateTime(typeProduit.updated_at)}</span>
                                         </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-gray-200 dark:border-gray-600">
+                                        <Link
+                                            href={`/admin/type-produits/${typeProduit.id}/edit`}
+                                            className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
+                                        >
+                                            <PencilIcon className="h-4 w-4 mr-1" />
+                                            {t('edit')}
+                                        </Link>
+                                        
+                                        <button
+                                            onClick={() => handleDelete(typeProduit)}
+                                            className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-600 rounded-md text-sm font-medium text-red-700 dark:text-red-300 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                                        >
+                                            <TrashIcon className="h-4 w-4 mr-1" />
+                                            {t('delete')}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                    
+                    {/* Pagination - Commune aux deux versions */}
+                    {typeProduits.links && (
+                        <div className="bg-white dark:bg-gray-800 px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <div className="flex-1 flex justify-between md:hidden">
+                                    {typeProduits.prev_page_url && (
+                                        <Link
+                                            href={typeProduits.prev_page_url}
+                                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
+                                        >
+                                            {t('previous')}
+                                        </Link>
+                                    )}
+                                    {typeProduits.next_page_url && (
+                                        <Link
+                                            href={typeProduits.next_page_url}
+                                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
+                                        >
+                                            {t('next')}
+                                        </Link>
+                                    )}
+                                </div>
+                                <div className="hidden md:flex-1 md:flex md:items-center md:justify-between">
+                                    <div>
+                                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                                            {t('showingResults', { from: typeProduits.from, to: typeProduits.to, total: typeProduits.total })}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                            {typeProduits.links.map((link, index) => (
+                                                <Link
+                                                    key={index}
+                                                    href={link.url || '#'}
+                                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${
+                                                        link.active
+                                                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-900 dark:border-blue-600 dark:text-blue-200'
+                                                            : link.url
+                                                            ? 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
+                                                            : 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600'
+                                                    } ${
+                                                        index === 0 ? 'rounded-l-md' : ''
+                                                    } ${
+                                                        index === typeProduits.links.length - 1 ? 'rounded-r-md' : ''
+                                                    }`}
+                                                >
+                                                    {link.label.includes('Previous') ? t('previous') : 
+                                                     link.label.includes('Next') ? t('next') : 
+                                                     <span dangerouslySetInnerHTML={{ __html: link.label }} />}
+                                                </Link>
+                                            ))}
+                                        </nav>
                                     </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

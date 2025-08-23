@@ -76,45 +76,58 @@ export default function AuthenticatedLayoutAdmin({ header, children }) {
         localStorage.setItem('language', lng);
     };
 
-    // Navigation pour Admin
-    const navigation = [
-        {
-            name: t('dashboard'),
-            href: '/admin/dashboard',
-            icon: ChartBarIcon,
-            current: route().current('admin.dashboard')
-        },
-        {
-            name: t('users'),
-            href: '/admin/users',
-            icon: UserGroupIcon,
-            current: route().current('admin.users.*')
-        },
-        {
-            name: t('productTypes'),
-            href: '/admin/type-produits',
-            icon: TagIcon,
-            current: route().current('admin.type-produits.*')
-        },
-        {
-            name: t('paymentMethods'),
-            href: '/admin/price-methodes',
-            icon: CreditCardIcon,
-            current: route().current('admin.price-methodes.*')
-        },
-        {
-            name: t('products'),
-            href: '/admin/produits',
-            icon: CubeIcon,
-            current: route().current('admin.produits.*')
-        },
-        {
-            name: t('orders'),
-            href: '/admin/commandes',
-            icon: ShoppingCartIcon,
-            current: route().current('admin.commandes.*')
-        },
-    ];
+    // Navigation selon le rôle de l'utilisateur
+    const getNavigationForRole = () => {
+        const baseNavigation = [
+            {
+                name: t('dashboard'),
+                href: '/admin/dashboard',
+                icon: ChartBarIcon,
+                current: route().current('admin.dashboard'),
+                roles: ['admin', 'gestionnaire_commande'] // Accessible aux deux rôles
+            },
+            {
+                name: t('users'),
+                href: '/admin/users',
+                icon: UserGroupIcon,
+                current: route().current('admin.users.*'),
+                roles: ['admin'] // Uniquement admin
+            },
+            {
+                name: t('productTypes'),
+                href: '/admin/type-produits',
+                icon: TagIcon,
+                current: route().current('admin.type-produits.*'),
+                roles: ['admin'] // Uniquement admin
+            },
+            {
+                name: t('paymentMethods'),
+                href: '/admin/price-methodes',
+                icon: CreditCardIcon,
+                current: route().current('admin.price-methodes.*'),
+                roles: ['admin'] // Uniquement admin
+            },
+            {
+                name: t('products'),
+                href: '/admin/produits',
+                icon: CubeIcon,
+                current: route().current('admin.produits.*'),
+                roles: ['admin'] // Uniquement admin
+            },
+            {
+                name: t('orders'),
+                href: '/admin/commandes',
+                icon: ShoppingCartIcon,
+                current: route().current('admin.commandes.*'),
+                roles: ['admin', 'gestionnaire_commande'] // Accessible aux deux rôles
+            },
+        ];
+
+        // Filtrer selon le rôle de l'utilisateur
+        return baseNavigation.filter(item => item.roles.includes(user.role));
+    };
+
+    const navigation = getNavigationForRole();
 
     const languages = [
         { code: 'fr', name: 'Français', flag: '🇫🇷' },
@@ -206,7 +219,7 @@ export default function AuthenticatedLayoutAdmin({ header, children }) {
                 <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
                     <div className="flex flex-1 items-center">
                         <div className="flex-1">
-                            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">AMAZIGHI SHOP - Admin</h1>
+                            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{user.role}</h1>
                         </div>
                     </div>
 
@@ -250,6 +263,37 @@ export default function AuthenticatedLayoutAdmin({ header, children }) {
                                 </Dropdown.Content>
                             </Dropdown>
                         </div>
+
+                        {/* Client Interface Navigation - Only for admins */}
+                        {user.role === 'admin' && (
+                            <>
+                                <div className="hidden sm:block">
+                                    <Link
+                                        href={route('client.catalog')}
+                                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600"
+                                        title={t('goToClientInterface')}
+                                    >
+                                        <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M8 11v6h8v-6M8 11H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-2" />
+                                        </svg>
+                                        <span className="hidden md:inline">{t('switchToClient')}</span>
+                                    </Link>
+                                </div>
+
+                                {/* Mobile Client Interface Navigation */}
+                                <div className="sm:hidden">
+                                    <Link
+                                        href={route('client.catalog')}
+                                        className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                        title={t('goToClientInterface')}
+                                    >
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M8 11v6h8v-6M8 11H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-2" />
+                                        </svg>
+                                    </Link>
+                                </div>
+                            </>
+                        )}
 
                         {/* Profile dropdown */}
                         <div className="relative">
@@ -341,38 +385,7 @@ export default function AuthenticatedLayoutAdmin({ header, children }) {
                                         </ul>
                                     </li>
 
-                                    {/* User info mobile */}
-                                    <li className="mt-auto">
-                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                            <div className="flex items-center gap-x-4 px-2 py-3">
-                                                <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        {user.name.charAt(0).toUpperCase()}
-                                                    </span>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-                                                </div>
-                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                                                    Admin
-                                                </span>
-                                            </div>
 
-                                            <div className="mt-3 space-y-1 px-2">
-                                                <ResponsiveNavLink href={route('profile.edit')}>
-                                                    {t('profile')}
-                                                </ResponsiveNavLink>
-                                                <ResponsiveNavLink
-                                                    method="post"
-                                                    href={route('logout')}
-                                                    as="button"
-                                                >
-                                                    {t('logout')}
-                                                </ResponsiveNavLink>
-                                            </div>
-                                        </div>
-                                    </li>
                                 </ul>
                             </nav>
                         </div>

@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -12,6 +12,8 @@ import {
 
 export default function PaymentMethodSelection({ priceMethodes, totalProducts }) {
     const { t } = useTranslation();
+    const { props } = usePage();
+    const user = props.auth?.user;
     const [selectedMethod, setSelectedMethod] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
 
@@ -52,9 +54,15 @@ export default function PaymentMethodSelection({ priceMethodes, totalProducts })
             name: method.methode_name
         }));
 
-        // Rediriger vers le catalogue après une petite animation
+        // Rediriger différemment selon le rôle utilisateur
         setTimeout(() => {
-            router.visit(`/client/products?payment_method_id=${method.id}`);
+            if (user && user.role === 'admin') {
+                // Admin → va directement au catalogue des produits
+                router.visit(`/client/products?payment_method_id=${method.id}`);
+            } else {
+                // Client → retourne à l'accueil
+                router.visit(`/?payment_method_id=${method.id}`);
+            }
         }, 500);
     };
 

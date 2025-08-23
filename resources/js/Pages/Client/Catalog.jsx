@@ -201,13 +201,19 @@ export default function Catalog({ auth, produits, typeProduits, priceRange, sele
 
             <div className="py-6">
                 <div className="w-full px-4 sm:px-6 lg:px-8">
-                    <div className="flex gap-6">
-                        {/* Sidebar Filtres - Mini sidebar à gauche */}
-                        <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 ${
-                            showFilters ? 'w-80' : 'w-80 hidden lg:block'
-                        }`}>
-                            <div className="p-6">
-                                <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Sidebar Filtres - Drawer sur mobile, sidebar sur desktop */}
+                        <div className={`fixed inset-0 lg:static bg-gray-900/50 lg:bg-transparent z-40 transition-all duration-300 ${
+                            showFilters ? 'opacity-100 visible' : 'opacity-0 invisible lg:opacity-100 lg:visible'
+                        }`} onClick={() => setShowFilters(false)}>
+                            <div 
+                                className={`fixed lg:static right-0 top-0 h-full w-[85%] max-w-[320px] lg:w-80 bg-white dark:bg-gray-800 rounded-l-2xl lg:rounded-lg shadow-xl lg:shadow-sm border-l lg:border border-gray-200 dark:border-gray-700 transition-all duration-300 transform ${
+                                    showFilters ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+                                }`}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="p-6">
+                                    <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
                                         <FunnelIcon className="h-5 w-5 mr-2" />
                                         {t('filters')}
@@ -312,6 +318,7 @@ export default function Catalog({ auth, produits, typeProduits, priceRange, sele
                                         {t('clearFilters')}
                                     </button>
                                 </div>
+                                </div>
                             </div>
                         </div>
 
@@ -344,65 +351,75 @@ export default function Catalog({ auth, produits, typeProduits, priceRange, sele
                                 </div>
                             ) : (
                                 <>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-8">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                                         {produits.data.map((produit) => (
-                                            <div key={produit.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
+                                            <div key={produit.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group transform hover:-translate-y-1">
                                                 {/* Image */}
-                                                <div className="h-56 bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+                                                <div className="h-48 sm:h-44 md:h-48 lg:h-56 bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
                                                     {produit.image ? (
                                                         <img
                                                             src={`/storage/${produit.image}`}
                                                             alt={produit.label}
-                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-in-out"
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center">
-                                                            <PhotoIcon className="h-12 w-12 text-gray-400" />
+                                                            <PhotoIcon className="h-16 w-16 sm:h-12 sm:w-12 text-gray-400" />
                                                         </div>
                                                     )}
                                                     
                                                     {/* Badge type */}
                                                     <div className="absolute top-3 left-3">
-                                                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                        <span className="inline-flex px-3 sm:px-2 py-1.5 sm:py-1 text-sm sm:text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 shadow-sm">
                                                             {produit.type_produit?.name}
                                                         </span>
                                                     </div>
 
                                                     {/* Actions overlay */}
-                                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                    <div className="absolute bottom-3 right-3 flex space-x-2">
                                                         <Link
-                                                            href={`/client/product/${produit.id}`}
-                                                            className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                                            href={`/client/product/${produit.id}?payment_method_id=${selectedPaymentMethod.id}`}
+                                                            className="bg-white dark:bg-gray-800 p-2.5 sm:p-2 rounded-full shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 backdrop-blur-sm bg-opacity-90 hover:scale-110"
                                                             title={t('viewDetails')}
                                                         >
-                                                            <EyeIcon className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                                                            <EyeIcon className="h-6 w-6 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400" />
                                                         </Link>
                                                     </div>
                                                 </div>
 
                                                 {/* Contenu */}
-                                                <div className="p-3">
-                                                    <div className="mb-2">
-                                                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-1 mb-1">
+                                                <div className="p-3 sm:p-4">
+                                                    <div className="mb-3">
+                                                        <h3 className="text-base sm:text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 mb-2">
                                                             {produit.label}
                                                         </h3>
                                                         <div className="flex items-center">
-                                                            <CubeIcon className="h-3 w-3 text-gray-400 mr-1" />
-                                                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                                                            <CubeIcon className="h-4 w-4 sm:h-3 sm:w-3 text-gray-400 mr-1" />
+                                                            <span className="text-sm sm:text-xs text-gray-600 dark:text-gray-400">
                                                                 {produit.quantity} {produit.unit}
                                                             </span>
                                                         </div>
                                                     </div>
 
                                                     {/* Prix */}
-                                                    <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center justify-between mb-4">
                                                         <div className="flex flex-col">
-                                                            <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                                                                {produit.produit_prices[0]?.price} TND
-                                                            </span>
-                                                            <span className="text-xs text-gray-500">
-                                                                via {selectedPaymentMethod?.methode_name || 'N/A'}
-                                                            </span>
+                                                            {produit.produit_prices && produit.produit_prices.length > 0 ? (
+                                                                <>
+                                                                    <span className="text-xl sm:text-lg font-bold text-green-600 dark:text-green-400">
+                                                                        {produit.produit_prices[0]?.price} TND
+                                                                    </span>
+                                                                    <span className="text-sm sm:text-xs text-gray-500">
+                                                                        via {selectedPaymentMethod?.methode_name || 'N/A'}
+                                                                    </span>
+                                                                </>
+                                                            ) : (
+                                                                <div className="bg-orange-100 dark:bg-orange-900/30 px-3 py-1.5 rounded-md">
+                                                                    <span className="text-sm sm:text-xs text-orange-800 dark:text-orange-300 font-medium">
+                                                                        {t('noPriceForProductInPaymentMethod', { method: selectedPaymentMethod?.methode_name?.replace('_', ' ') || 'N/A' })}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
 
                                                         {produit.contact_social_media && (
@@ -414,21 +431,19 @@ export default function Catalog({ auth, produits, typeProduits, priceRange, sele
                                                     </div>
 
                                                     {/* Actions */}
-                                                    <div className="flex space-x-2">
+                                                    <div className="flex">
                                                         <button
                                                             onClick={() => addToCart(produit)}
-                                                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-2 rounded text-xs flex items-center justify-center space-x-1 transition-colors"
+                                                            disabled={!produit.produit_prices || produit.produit_prices.length === 0}
+                                                            className={`w-full py-2.5 sm:py-2 px-4 sm:px-3 rounded-lg sm:rounded text-sm sm:text-xs font-medium flex items-center justify-center space-x-2 transition-all duration-300 ${
+                                                                produit.produit_prices && produit.produit_prices.length > 0
+                                                                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-blue-500/25 active:transform active:scale-95'
+                                                                    : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                            }`}
                                                         >
-                                                            <PlusIcon className="h-3 w-3" />
+                                                            <PlusIcon className="h-4 w-4 sm:h-3 sm:w-3" />
                                                             <span>{t('addToCart')}</span>
                                                         </button>
-                                                        
-                                                        <Link
-                                                            href={`/client/product/${produit.id}`}
-                                                            className="bg-gray-600 hover:bg-gray-700 text-white py-1.5 px-2 rounded flex items-center justify-center transition-colors"
-                                                        >
-                                                            <EyeIcon className="h-3 w-3" />
-                                                        </Link>
                                                     </div>
                                                 </div>
                                             </div>

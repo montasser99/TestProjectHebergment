@@ -160,12 +160,12 @@ export default function ProductDetail({ auth, produit, selectedPaymentMethod, pa
         >
             <Head title={produit.label} />
 
-            <div className="py-6">
-                <div className="max-w-6xl mx-auto sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="py-4 sm:py-6">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
                         {/* Image du produit */}
                         <div className="space-y-4">
-                            <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-md max-w-md mx-auto">
+                            <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-md max-w-md mx-auto lg:mx-0">
                                 {produit.image ? (
                                     <img
                                         src={`/storage/${produit.image}`}
@@ -194,11 +194,11 @@ export default function ProductDetail({ auth, produit, selectedPaymentMethod, pa
                         <div className="space-y-6">
                             {/* En-tête */}
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
                                     {produit.label}
                                 </h1>
                                 
-                                <div className="flex items-center space-x-4 text-gray-600 dark:text-gray-400 mb-4">
+                                <div className="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-400 mb-4">
                                     <div className="flex items-center">
                                         <CubeIcon className="h-4 w-4 mr-1" />
                                         <span className="text-sm">{produit.quantity} {produit.unit}</span>
@@ -211,25 +211,43 @@ export default function ProductDetail({ auth, produit, selectedPaymentMethod, pa
                                 </div>
 
                                 {/* Prix */}
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
-                                    <div className="flex items-baseline space-x-2">
-                                        <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                            {price.toFixed(3)}
-                                        </span>
-                                        <span className="text-lg text-green-600 dark:text-green-400">
-                                            {produit.currency || 'TND'}
-                                        </span>
+                                {price > 0 ? (
+                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-3 sm:p-4 border border-green-200 dark:border-green-800">
+                                        <div className="flex items-baseline space-x-2">
+                                            <span className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
+                                                {price.toFixed(3)}
+                                            </span>
+                                            <span className="text-base sm:text-lg text-green-600 dark:text-green-400">
+                                                {produit.currency || 'TND'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                                            Prix via {produit.produit_prices[0]?.price_methode?.methode_name?.replace('_', ' ') || selectedPaymentMethod?.methode_name?.replace('_', ' ') || 'Méthode standard'}
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-green-700 dark:text-green-300 mt-1">
-                                        Prix via {produit.produit_prices[0]?.price_methode?.methode_name?.replace('_', ' ') || selectedPaymentMethod?.methode_name?.replace('_', ' ') || 'Méthode standard'}
-                                    </p>
-                                </div>
+                                ) : (
+                                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-xl p-4 border border-orange-200 dark:border-orange-800">
+                                        <div className="flex items-center space-x-2 text-orange-800 dark:text-orange-200">
+                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                            <div>
+                                                <p className="font-semibold text-sm">
+                                                    {t('noPriceForProductInPaymentMethod', { method: selectedPaymentMethod?.methode_name?.replace('_', ' ') || 'N/A' })}
+                                                </p>
+                                                <p className="text-xs mt-1 opacity-90">
+                                                    Veuillez changer de méthode de paiement ou contacter le vendeur.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Description */}
                             {produit.description && (
-                                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                                    <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-2">
+                                <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                                    <h3 className="text-base sm:text-md font-semibold text-gray-900 dark:text-white mb-2">
                                         {t('productDescription')}
                                     </h3>
                                     <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -239,62 +257,78 @@ export default function ProductDetail({ auth, produit, selectedPaymentMethod, pa
                             )}
 
                             {/* Quantité et ajout au panier */}
-                            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                                <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">
-                                    {t('addToCart')}
-                                </h3>
-                                
-                                <div className="flex items-center space-x-3 mb-4">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        {t('quantity')} :
-                                    </span>
-                                    <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg">
-                                        <button
-                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                            disabled={quantity <= 1}
-                                        >
-                                            <MinusIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                                        </button>
-                                        <span className="px-3 py-2 text-center min-w-[50px] text-gray-900 dark:text-white font-medium">
-                                            {quantity}
+                            {price > 0 ? (
+                                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                                    <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">
+                                        {t('addToCart')}
+                                    </h3>
+                                    
+                                    <div className="flex items-center space-x-3 mb-4">
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {t('quantity')} :
                                         </span>
-                                        <button
-                                            onClick={() => setQuantity(quantity + 1)}
-                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                        >
-                                            <PlusIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                                        </button>
+                                        <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg">
+                                            <button
+                                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                                disabled={quantity <= 1}
+                                            >
+                                                <MinusIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                                            </button>
+                                            <span className="px-3 py-2 text-center min-w-[50px] text-gray-900 dark:text-white font-medium">
+                                                {quantity}
+                                            </span>
+                                            <button
+                                                onClick={() => setQuantity(quantity + 1)}
+                                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                            >
+                                                <PlusIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="text-md font-semibold text-gray-900 dark:text-white">
+                                            {t('total')} : {(price * quantity).toFixed(3)} {produit.currency || 'TND'}
+                                        </span>
+                                    </div>
+
+                                    <button
+                                        onClick={addToCart}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
+                                    >
+                                        <ShoppingCartIcon className="h-4 w-4" />
+                                        <span>{t('addToCart')}</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-600">
+                                    <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">
+                                        {t('addToCart')}
+                                    </h3>
+                                    <div className="text-center text-gray-500 dark:text-gray-400">
+                                        <p className="text-sm mb-3">
+                                            L'ajout au panier n'est pas disponible pour cette méthode de paiement.
+                                        </p>
+                                        <p className="text-xs">
+                                            Changez de méthode ou contactez le vendeur pour plus d'informations.
+                                        </p>
                                     </div>
                                 </div>
-
-                                <div className="flex items-center justify-between mb-4">
-                                    <span className="text-md font-semibold text-gray-900 dark:text-white">
-                                        {t('total')} : {(price * quantity).toFixed(3)} {produit.currency || 'TND'}
-                                    </span>
-                                </div>
-
-                                <button
-                                    onClick={addToCart}
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
-                                >
-                                    <ShoppingCartIcon className="h-4 w-4" />
-                                    <span>{t('addToCart')}</span>
-                                </button>
-                            </div>
+                            )}
 
                             {/* Informations de contact */}
                             {availableContacts.length > 0 && (
-                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-                                    <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-3 sm:p-4 border border-blue-200 dark:border-blue-800">
+                                    <h3 className="text-base sm:text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                                         <ChatBubbleLeftIcon className="h-4 w-4 mr-2 text-blue-600 dark:text-blue-400" />
                                         {t('contactInformationVendor')}
                                     </h3>
                                     
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {availableContacts.map((contact, index) => (
-                                            <div key={index} className={`flex items-center p-2 bg-gradient-to-r ${getContactColor(contact.type)} rounded-lg text-white shadow-sm hover:shadow-md transition-shadow`}>
-                                                <div className="flex-shrink-0 mr-2">
+                                            <div key={index} className={`flex items-center p-3 sm:p-2 bg-gradient-to-r ${getContactColor(contact.type)} rounded-lg text-white shadow-sm hover:shadow-md transition-shadow`}>
+                                                <div className="flex-shrink-0 mr-3 sm:mr-2">
                                                     {getContactIcon(contact.type)}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -319,15 +353,15 @@ export default function ProductDetail({ auth, produit, selectedPaymentMethod, pa
                             )}
 
                             {/* Informations supplémentaires */}
-                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 className="text-base sm:text-md font-semibold text-gray-900 dark:text-white mb-3">
                                     Informations du produit
                                 </h3>
                                 
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div>
-                                        <span className="text-gray-600 dark:text-gray-400">Type :</span>
-                                        <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3 text-sm">
+                                    <div className="flex flex-col sm:flex-row sm:items-center">
+                                        <span className="text-gray-600 dark:text-gray-400 mb-1 sm:mb-0">Type :</span>
+                                        <span className="sm:ml-2 font-medium text-gray-900 dark:text-white">
                                             {produit.type_produit?.name || 'Non spécifié'}
                                         </span>
                                     </div>

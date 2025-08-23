@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayoutClient from '@/Layouts/Client/AuthenticatedLayoutClient';
 import PaymentMethodGuard from '@/Utils/PaymentMethodGuard';
 import { useTranslation } from 'react-i18next';
@@ -71,12 +71,12 @@ export default function OrderHistory({ auth, commandes }) {
             >
                 <Head title={t('orderHistory')} />
 
-                <div className="py-6">
+                <div className="py-4 sm:py-6">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         {commandes.data.length === 0 ? (
                             // Aucune commande
-                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-                                <ShoppingBagIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-12 text-center">
+                                <ShoppingBagIcon className="mx-auto h-20 w-20 sm:h-16 sm:w-16 text-gray-400 mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                                     {t('noOrdersYet')}
                                 </h3>
@@ -88,9 +88,9 @@ export default function OrderHistory({ auth, commandes }) {
                                         const savedPaymentMethod = localStorage.getItem('selectedPaymentMethod');
                                         if (savedPaymentMethod) {
                                             const paymentMethod = JSON.parse(savedPaymentMethod);
-                                            window.location.href = `/client/products?payment_method_id=${paymentMethod.id}`;
+                                            router.visit(`/client/products?payment_method_id=${paymentMethod.id}`);
                                         } else {
-                                            window.location.href = '/client/payment-method';
+                                            router.visit('/client/payment-method');
                                         }
                                     }}
                                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
@@ -106,20 +106,20 @@ export default function OrderHistory({ auth, commandes }) {
 
                                     return (
                                         <div key={commande.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                            <div className="p-6">
+                                            <div className="p-4 sm:p-6">
                                                 {/* En-tête de la commande */}
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div className="flex items-center space-x-4">
-                                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-4">
+                                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                                                        <h3 className="text-xl sm:text-lg font-semibold text-gray-900 dark:text-white">
                                                             {t('order')} #{commande.id}
                                                         </h3>
-                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(commande.statut)}`}>
-                                                            <StatusIcon className="h-3 w-3 mr-1" />
+                                                        <span className={`inline-flex items-center px-3 py-1 sm:px-2.5 sm:py-0.5 rounded-full text-sm sm:text-xs font-medium ${getStatusColor(commande.statut)}`}>
+                                                            <StatusIcon className="h-4 w-4 sm:h-3 sm:w-3 mr-1.5 sm:mr-1" />
                                                             {getStatusLabel(commande.statut)}
                                                         </span>
                                                     </div>
-                                                    <div className="text-right">
-                                                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                                                    <div className="text-left sm:text-right">
+                                                        <p className="text-xl sm:text-lg font-bold text-green-600 dark:text-green-400">
                                                             {parseFloat(commande.total_amount).toFixed(3)} TND
                                                         </p>
                                                         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -129,17 +129,17 @@ export default function OrderHistory({ auth, commandes }) {
                                                 </div>
 
                                                 {/* Informations générales */}
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                                        <CalendarIcon className="h-4 w-4 mr-2" />
+                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                                                    <div className="flex items-center justify-center sm:justify-start text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg sm:bg-transparent sm:p-0 sm:rounded-none">
+                                                        <CalendarIcon className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
                                                         <span>{formatDateTime(commande.date_commande)}</span>
                                                     </div>
-                                                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                                        <CreditCardIcon className="h-4 w-4 mr-2" />
+                                                    <div className="flex items-center justify-center sm:justify-start text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg sm:bg-transparent sm:p-0 sm:rounded-none">
+                                                        <CreditCardIcon className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
                                                         <span className="capitalize">{commande.payment_method_name.replace('_', ' ')}</span>
                                                     </div>
-                                                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                                        <ShoppingBagIcon className="h-4 w-4 mr-2" />
+                                                    <div className="flex items-center justify-center sm:justify-start text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg sm:bg-transparent sm:p-0 sm:rounded-none">
+                                                        <ShoppingBagIcon className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
                                                         <span>{t('itemsCount', { count: commande.commande_produits.length })}</span>
                                                     </div>
                                                 </div>
@@ -149,10 +149,10 @@ export default function OrderHistory({ auth, commandes }) {
                                                     <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                                                         {t('orderedProducts')}
                                                     </h4>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                         {commande.commande_produits.slice(0, 3).map((item, index) => (
-                                                            <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                                                <div className="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600">
+                                                            <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                                <div className="flex-shrink-0 w-16 h-16 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600">
                                                                     {item.produit_image ? (
                                                                         <img
                                                                             src={`/storage/${item.produit_image}`}
@@ -161,15 +161,15 @@ export default function OrderHistory({ auth, commandes }) {
                                                                         />
                                                                     ) : (
                                                                         <div className="w-full h-full flex items-center justify-center">
-                                                                            <ShoppingBagIcon className="h-5 w-5 text-gray-400" />
+                                                                            <ShoppingBagIcon className="h-7 w-7 sm:h-5 sm:w-5 text-gray-400" />
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                                    <p className="text-base sm:text-sm font-medium text-gray-900 dark:text-white truncate">
                                                                         {item.produit_label}
                                                                     </p>
-                                                                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                                                                    <p className="text-sm sm:text-xs text-gray-600 dark:text-gray-400">
                                                                         {t('quantity')}: {item.quantite_commandee} • {parseFloat(item.prix_unitaire).toFixed(3)} TND
                                                                     </p>
                                                                 </div>
@@ -177,9 +177,12 @@ export default function OrderHistory({ auth, commandes }) {
                                                         ))}
                                                         {commande.commande_produits.length > 3 && (
                                                             <div className="flex items-center justify-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                                                <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                                    +{commande.commande_produits.length - 3} autres...
-                                                                </span>
+                                                                <div className="flex items-center space-x-2">
+                                                                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                                                                    <span className="text-base sm:text-sm text-gray-600 dark:text-gray-400">
+                                                                        +{commande.commande_produits.length - 3} {t('more')}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>

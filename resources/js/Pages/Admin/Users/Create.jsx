@@ -172,6 +172,7 @@ export default function Create({ auth }) {
                                     >
                                         <option value="client">{t('client')}</option>
                                         <option value="admin">{t('admin')}</option>
+                                        <option value="gestionnaire_commande">{t('orderManager')}</option>
                                     </select>
                                     {errors.role && (
                                         <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.role}</p>

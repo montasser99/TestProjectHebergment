@@ -50,13 +50,13 @@ export default function Index({ auth, produits, typeProduits, filters }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
                         {t('productManagement')}
                     </h2>
                     <Link
                         href="/admin/produits/create"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-200 w-full sm:w-auto"
                     >
                         <PlusIcon className="h-4 w-4" />
                         <span>{t('addProduct')}</span>
@@ -70,8 +70,8 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* Filtres */}
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                        <div className="p-6">
-                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+                        <div className="p-4 sm:p-6">
+                            <form onSubmit={handleSearch} className="space-y-4 sm:space-y-0 sm:flex sm:gap-4">
                                 <div className="flex-1">
                                     <div className="relative">
                                         <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -80,7 +80,7 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                             placeholder={t('search')}
                                             value={search}
                                             onChange={(e) => setSearch(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                            className="w-full pl-10 pr-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-base sm:text-sm"
                                         />
                                     </div>
                                 </div>
@@ -89,7 +89,7 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                     <select
                                         value={typeProduitId}
                                         onChange={(e) => setTypeProduitId(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                        className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-base sm:text-sm"
                                     >
                                         <option value="">{t('allTypes')}</option>
                                         {typeProduits.map((type) => (
@@ -102,27 +102,28 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                 
                                 <button
                                     type="submit"
-                                    className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 sm:py-2 rounded-lg transition-colors duration-200 font-medium text-base sm:text-sm flex items-center justify-center space-x-2"
                                 >
-                                    {t('search')}
+                                    <MagnifyingGlassIcon className="h-5 w-5 sm:hidden" />
+                                    <span>{t('search')}</span>
                                 </button>
                             </form>
                         </div>
                     </div>
 
                     {/* Grille des produits */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {produits.data.length === 0 ? (
-                            <div className="col-span-full bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                            <div className="col-span-full bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
                                 <div className="p-6 text-center text-gray-500 dark:text-gray-400">
                                     {t('noProductsFound')}
                                 </div>
                             </div>
                         ) : (
                             produits.data.map((produit) => (
-                                <div key={produit.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg transition-shadow duration-200">
+                                <div key={produit.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg hover:shadow-lg transition-shadow duration-200 border border-gray-200 dark:border-gray-700">
                                     {/* Image du produit */}
-                                    <div className="h-48 bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+                                    <div className="h-40 sm:h-48 bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
                                         {produit.image ? (
                                             <img
                                                 src={`/storage/${produit.image}`}
@@ -131,7 +132,7 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center">
-                                                <PhotoIcon className="h-16 w-16 text-gray-400" />
+                                                <PhotoIcon className="h-12 sm:h-16 w-12 sm:w-16 text-gray-400" />
                                             </div>
                                         )}
                                         
@@ -144,14 +145,14 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                     </div>
 
                                     {/* Contenu */}
-                                    <div className="p-4">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                                    <div className="p-3 sm:p-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 gap-1 sm:gap-0">
+                                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white line-clamp-1">
                                                 {produit.label}
                                             </h3>
-                                            <div className="flex items-center ml-2">
+                                            <div className="flex items-center">
                                                 <CubeIcon className="h-4 w-4 text-gray-400 mr-1" />
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                                     {produit.quantity} {produit.unit}
                                                 </span>
                                             </div>
@@ -164,19 +165,19 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                         )}
 
                                         {/* Prix et contact */}
-                                        <div className="flex items-center justify-between mb-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2 sm:gap-0">
                                             <div className="text-sm text-gray-600 dark:text-gray-400">
-                                                <span className="font-medium">{produit.produit_prices_count}</span> prix configurés
+                                                <span className="font-medium">{produit.produit_prices_count}</span> {t('pricesConfigured')}
                                             </div>
                                             {produit.contact_social_media && (
                                                 <div className="text-xs text-green-600 dark:text-green-400">
-                                                    Contact disponible
+                                                    {t('contactAvailable')}
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Actions */}
-                                        <div className="flex items-center justify-end space-x-2">
+                                        {/* Actions - Desktop (icônes seulement) */}
+                                        <div className="hidden sm:flex items-center justify-end space-x-2">
                                             <Link
                                                 href={`/admin/produits/${produit.id}`}
                                                 className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded transition-colors duration-200"
@@ -201,6 +202,33 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                                 <TrashIcon className="h-4 w-4" />
                                             </button>
                                         </div>
+
+                                        {/* Actions - Mobile (boutons avec texte) */}
+                                        <div className="flex sm:hidden flex-wrap gap-2 pt-3 border-t border-gray-200 dark:border-gray-600">
+                                            <Link
+                                                href={`/admin/produits/${produit.id}`}
+                                                className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 flex-1 justify-center"
+                                            >
+                                                <EyeIcon className="h-4 w-4 mr-1" />
+                                                {t('view')}
+                                            </Link>
+                                            
+                                            <Link
+                                                href={`/admin/produits/${produit.id}/edit`}
+                                                className="inline-flex items-center px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-md text-sm font-medium text-blue-700 dark:text-blue-300 bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200 flex-1 justify-center"
+                                            >
+                                                <PencilIcon className="h-4 w-4 mr-1" />
+                                                {t('edit')}
+                                            </Link>
+                                            
+                                            <button
+                                                onClick={() => handleDelete(produit)}
+                                                className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-600 rounded-md text-sm font-medium text-red-700 dark:text-red-300 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 w-full justify-center mt-2"
+                                            >
+                                                <TrashIcon className="h-4 w-4 mr-1" />
+                                                {t('delete')}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))
@@ -209,13 +237,13 @@ export default function Index({ auth, produits, typeProduits, filters }) {
 
                     {/* Pagination */}
                     {produits.links && produits.data.length > 0 && (
-                        <div className="mt-6 bg-white dark:bg-gray-800 px-4 py-3 border border-gray-200 dark:border-gray-700 sm:px-6 rounded-lg">
+                        <div className="mt-6 bg-white dark:bg-gray-800 px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div className="flex-1 flex justify-between sm:hidden">
                                     {produits.prev_page_url && (
                                         <Link
                                             href={produits.prev_page_url}
-                                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
                                         >
                                             {t('previous')}
                                         </Link>
@@ -223,7 +251,7 @@ export default function Index({ auth, produits, typeProduits, filters }) {
                                     {produits.next_page_url && (
                                         <Link
                                             href={produits.next_page_url}
-                                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
                                         >
                                             {t('next')}
                                         </Link>

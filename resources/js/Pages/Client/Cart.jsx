@@ -192,30 +192,30 @@ export default function Cart({ auth }) {
                         </div>
                     ) : (
                         // Panier avec produits
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
                             {/* Liste des produits */}
-                            <div className="lg:col-span-2">
+                            <div className="order-2 lg:order-1 lg:col-span-2">
                                 <div className="space-y-4">
                                     {cart.map((item) => (
-                                        <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                            <div className="flex items-center space-x-4">
+                                        <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+                                            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
                                                 {/* Image du produit */}
-                                                <div className="flex-shrink-0">
+                                                <div className="flex-shrink-0 mx-auto sm:mx-0">
                                                     {item.image ? (
                                                         <img
                                                             src={`/storage/${item.image}`}
                                                             alt={item.label}
-                                                            className="h-20 w-20 object-cover rounded-lg"
+                                                            className="h-24 w-24 sm:h-20 sm:w-20 object-cover rounded-lg"
                                                         />
                                                     ) : (
-                                                        <div className="h-20 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                                                        <div className="h-24 w-24 sm:h-20 sm:w-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                                                             <PhotoIcon className="h-8 w-8 text-gray-400" />
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 {/* Détails du produit */}
-                                                <div className="flex-grow">
+                                                <div className="flex-grow text-center sm:text-left">
                                                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                                                         {item.label}
                                                     </h3>
@@ -228,36 +228,37 @@ export default function Cart({ auth }) {
                                                 </div>
 
                                                 {/* Contrôles de quantité */}
-                                                <div className="flex items-center space-x-3">
+                                                <div className="flex items-center justify-center sm:justify-start space-x-3">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                        className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+                                                        className="p-2 sm:p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                                                     >
-                                                        <MinusIcon className="h-4 w-4" />
+                                                        <MinusIcon className="h-5 w-5 sm:h-4 sm:w-4" />
                                                     </button>
                                                     
-                                                    <span className="w-8 text-center font-medium">
+                                                    <span className="w-8 text-center font-medium text-lg sm:text-base">
                                                         {item.quantity}
                                                     </span>
                                                     
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                        className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+                                                        className="p-2 sm:p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                                                     >
-                                                        <PlusIcon className="h-4 w-4" />
+                                                        <PlusIcon className="h-5 w-5 sm:h-4 sm:w-4" />
                                                     </button>
                                                 </div>
 
                                                 {/* Sous-total et supprimer */}
-                                                <div className="text-right">
+                                                <div className="text-center sm:text-right">
                                                     <p className="text-lg font-semibold text-gray-900 dark:text-white">
                                                         {(parseFloat(item.subtotal) || 0).toFixed(3)} TND
                                                     </p>
                                                     <button
                                                         onClick={() => removeFromCart(item.id)}
-                                                        className="mt-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                                        className="mt-2 inline-flex items-center space-x-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                                     >
-                                                        <TrashIcon className="h-4 w-4" />
+                                                        <TrashIcon className="h-5 w-5 sm:h-4 sm:w-4" />
+                                                        <span className="text-sm sm:hidden">{t('remove')}</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -267,9 +268,9 @@ export default function Cart({ auth }) {
                             </div>
 
                             {/* Résumé de commande */}
-                            <div className="lg:col-span-1">
-                                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 sticky top-6">
-                                    <div className="p-6">
+                            <div className="order-1 lg:order-2 lg:col-span-1">
+                                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 lg:sticky lg:top-6">
+                                    <div className="p-4 sm:p-6">
                                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                                             <CreditCardIcon className="h-5 w-5 mr-2" />
                                             {t('orderSummary')}

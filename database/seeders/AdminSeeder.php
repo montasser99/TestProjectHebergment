@@ -11,12 +11,12 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         // Créer un administrateur seulement s'il n'existe pas déjà
-        if (!User::where('email', 'admin@amazighi.tn')->exists()) {
+        if (!User::where('email', 'ghayth.amazighi@gmail.com')->exists()) {
             User::create([
                 'name' => 'Admin System',
-                'email' => 'admin@amazighi.tn', 
+                'email' => 'ghayth.amazighi@gmail.com', 
                 'phone' => '+216 71 123 456',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make('Ghayth2007@'),
                 'role' => 'admin',
                 'is_blocked' => false,
                 'email_verified_at' => now(),

@@ -30,21 +30,21 @@ export default function Show({ auth, produit }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-center space-x-3 min-w-0 flex-1">
                         <Link
                             href="/admin/produits"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200"
+                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200 flex-shrink-0"
                         >
                             <ArrowLeftIcon className="h-5 w-5" />
                         </Link>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                            {t('viewProduct')} : {produit.label}
+                        <h2 className="text-lg sm:text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200 truncate">
+                            <span className="hidden sm:inline">{t('viewProduct')} : </span>{produit.label}
                         </h2>
                     </div>
                     <Link
                         href={`/admin/produits/${produit.id}/edit`}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-200 w-full sm:w-auto"
                     >
                         <PencilIcon className="h-4 w-4" />
                         <span>{t('editProduct')}</span>
@@ -54,20 +54,20 @@ export default function Show({ auth, produit }) {
         >
             <Head title={`${t('viewProduct')} - ${produit.label}`} />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="py-8 sm:py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
                         {/* Colonne principale - Informations du produit */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                             {/* Informations de base */}
-                            <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                                <div className="p-6">
-                                    <div className="flex items-start justify-between mb-6">
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                            <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div className="p-4 sm:p-6">
+                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-6 gap-3">
+                                        <div className="min-w-0 flex-1">
+                                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
                                                 {produit.label}
                                             </h3>
-                                            <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 dark:text-gray-400">
                                                 <div className="flex items-center">
                                                     <TagIcon className="h-4 w-4 mr-1" />
                                                     <span>{produit.type_produit?.name}</span>
@@ -84,7 +84,7 @@ export default function Show({ auth, produit }) {
                                             </div>
                                         </div>
                                         
-                                        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 self-start">
                                             {produit.type_produit?.name}
                                         </span>
                                     </div>
@@ -101,20 +101,26 @@ export default function Show({ auth, produit }) {
                                     )}
 
                                     {/* Métadonnées avec icônes et formatage amélioré */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex items-center space-x-2 text-sm">
-                                            <CalendarIcon className="h-4 w-4 text-gray-400" />
-                                            <span className="text-gray-500 dark:text-gray-400">{t('creationDate')} :</span>
-                                            <span className="text-gray-900 dark:text-white font-medium">
-                                                {formatDateTime(produit.created_at)}
-                                            </span>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        <div className="flex items-start space-x-2 text-sm">
+                                            <CalendarIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                                            <div className="min-w-0 flex-1">
+                                                <span className="text-gray-500 dark:text-gray-400">{t('creationDate')} :</span>
+                                                <br />
+                                                <span className="text-gray-900 dark:text-white font-medium">
+                                                    {formatDateTime(produit.created_at)}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center space-x-2 text-sm">
-                                            <ClockIcon className="h-4 w-4 text-gray-400" />
-                                            <span className="text-gray-500 dark:text-gray-400">{t('modifiedDate')} :</span>
-                                            <span className="text-gray-900 dark:text-white font-medium">
-                                                {formatDateTime(produit.updated_at)}
-                                            </span>
+                                        <div className="flex items-start space-x-2 text-sm">
+                                            <ClockIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                                            <div className="min-w-0 flex-1">
+                                                <span className="text-gray-500 dark:text-gray-400">{t('modifiedDate')} :</span>
+                                                <br />
+                                                <span className="text-gray-900 dark:text-white font-medium">
+                                                    {formatDateTime(produit.updated_at)}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -129,7 +135,7 @@ export default function Show({ auth, produit }) {
                                     </h3>
                                     
                                     {produit.produit_prices && produit.produit_prices.length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4">
                                             {produit.produit_prices.map((priceData, index) => (
                                                 <div key={index} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/10 dark:to-blue-900/10">
                                                     <div className="flex items-center justify-between">
@@ -173,7 +179,7 @@ export default function Show({ auth, produit }) {
                                     </h3>
                                     
                                     {produit.contact_social_media ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4">
                                             {produit.contact_social_media.instagram_page && (
                                                 <div className="flex items-center p-3 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-lg">
                                                     <div className="flex-shrink-0">
@@ -249,15 +255,15 @@ export default function Show({ auth, produit }) {
                         </div>
 
                         {/* Colonne latérale - Image et statistiques */}
-                        <div className="lg:col-span-1 space-y-6">
+                        <div className="lg:col-span-1 space-y-4 sm:space-y-6">
                             {/* Image du produit */}
-                            <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                                <div className="p-6">
+                            <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div className="p-4 sm:p-6">
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                                         {t('productImage')}
                                     </h3>
                                     
-                                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                    <div className="aspect-square sm:aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                                         {produit.image ? (
                                             <img
                                                 src={`/storage/${produit.image}`}
@@ -266,7 +272,7 @@ export default function Show({ auth, produit }) {
                                             />
                                         ) : (
                                             <div className="text-center">
-                                                <PhotoIcon className="mx-auto h-16 w-16 text-gray-400" />
+                                                <PhotoIcon className="mx-auto h-12 sm:h-16 w-12 sm:w-16 text-gray-400" />
                                                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                                                     {t('noImage')}
                                                 </p>
@@ -310,13 +316,13 @@ export default function Show({ auth, produit }) {
                                                     <TagIcon className="h-4 w-4 mr-1" />
                                                     {t('priceRange')}
                                                 </span>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                                                <div className="space-y-1">
+                                                    <div className="text-sm font-medium text-green-600 dark:text-green-400">
                                                         {t('minPrice')}: {Math.min(...produit.produit_prices.map(p => parseFloat(p.price))).toFixed(3)} {produit.currency}
-                                                    </span>
-                                                    <span className="text-sm font-medium text-red-600 dark:text-red-400">
+                                                    </div>
+                                                    <div className="text-sm font-medium text-red-600 dark:text-red-400">
                                                         {t('maxPrice')}: {Math.max(...produit.produit_prices.map(p => parseFloat(p.price))).toFixed(3)} {produit.currency}
-                                                    </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}

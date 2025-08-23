@@ -14,30 +14,24 @@ class ClientController extends Controller
 {
     /**
      * Afficher la page de sélection de méthode de paiement
-     * Affiche seulement les méthodes disponibles pour TOUS les produits
+     * Affiche TOUTES les méthodes de paiement disponibles
      */
     public function selectPaymentMethod()
     {
+        // Vérifier que l'utilisateur peut accéder à l'interface client
+        if (auth()->user()->role === 'gestionnaire_commande') {
+            return redirect()->route('unauthorized');
+        }
+        
         // Compter le nombre total de produits
         $totalProducts = Produit::count();
         
-        if ($totalProducts === 0) {
-            // Si aucun produit, retourner toutes les méthodes
-            $priceMethodes = PriceMethode::orderBy('methode_name')->get();
-        } else {
-            // Récupérer uniquement les méthodes de paiement disponibles pour TOUS les produits
-            $priceMethodes = PriceMethode::whereIn('id', function($subquery) use ($totalProducts) {
-                $subquery->select('id_price_methode')
-                        ->from('produit_prices')
-                        ->groupBy('id_price_methode')
-                        ->havingRaw('COUNT(DISTINCT id_produit) = ?', [$totalProducts]);
-            })
-            ->withCount(['produitPrices as products_count' => function($query) {
-                $query->select(DB::raw('COUNT(DISTINCT id_produit)'));
-            }])
-            ->orderBy('methode_name')
-            ->get();
-        }
+        // Récupérer TOUTES les méthodes de paiement disponibles
+        $priceMethodes = PriceMethode::withCount(['produitPrices as products_count' => function($query) {
+            $query->select(DB::raw('COUNT(DISTINCT id_produit)'));
+        }])
+        ->orderBy('methode_name')
+        ->get();
         
         return Inertia::render('Client/PaymentMethodSelection', [
             'priceMethodes' => $priceMethodes,
@@ -50,6 +44,11 @@ class ClientController extends Controller
      */
     public function catalog(Request $request)
     {
+        // Vérifier que l'utilisateur peut accéder à l'interface client
+        if (auth()->user()->role === 'gestionnaire_commande') {
+            return redirect()->route('unauthorized');
+        }
+        
         $paymentMethodId = $request->payment_method_id;
         
         if (!$paymentMethodId) {
@@ -59,12 +58,12 @@ class ClientController extends Controller
         // Récupérer la méthode de paiement sélectionnée
         $selectedPaymentMethod = PriceMethode::findOrFail($paymentMethodId);
         
-        // Récupérer les produits avec les prix pour cette méthode de paiement
+        // Récupérer TOUS les produits avec les prix pour cette méthode de paiement (si disponibles)
         $query = Produit::with([
             'typeProduit',
             'contactSocialMedia',
             'produitPrices' => function($q) use ($paymentMethodId) {
-                $q->where('id_price_methode', $paymentMethodId);
+                $q->where('id_price_methode', $paymentMethodId)->with('priceMethode');
             }
         ]);
 
@@ -76,7 +75,7 @@ class ClientController extends Controller
             $query->whereIn('type_produit_id', $types);
         }
 
-        // Filtrage par prix (selon la méthode de paiement sélectionnée)
+        // Filtrage par prix (seulement pour les produits qui ont un prix dans cette méthode)
         if ($request->filled('min_price') || $request->filled('max_price')) {
             $query->whereHas('produitPrices', function($q) use ($request, $paymentMethodId) {
                 $q->where('id_price_methode', $paymentMethodId);
@@ -102,12 +101,9 @@ class ClientController extends Controller
 
         $produits = $query->paginate(8)->withQueryString();
 
-        // Récupérer les types de produits avec comptage
-        $typeProduits = TypeProduit::withCount(['produits' => function($query) use ($paymentMethodId) {
-            $query->whereHas('produitPrices', function($q) use ($paymentMethodId) {
-                $q->where('id_price_methode', $paymentMethodId);
-            });
-        }])->orderBy('name')->get();
+        // Récupérer les types de produits avec comptage de tous les produits
+        $typeProduits = TypeProduit::withCount(['produits'])
+            ->orderBy('name')->get();
         
         // Calculer les prix min/max pour cette méthode de paiement
         $priceRange = DB::table('produit_prices')
@@ -129,6 +125,11 @@ class ClientController extends Controller
      */
     public function productDetail(Request $request, Produit $produit)
     {
+        // Vérifier que l'utilisateur peut accéder à l'interface client
+        if (auth()->user()->role === 'gestionnaire_commande') {
+            return redirect()->route('unauthorized');
+        }
+        
         // Récupérer la méthode de paiement depuis l'URL ou utiliser la première disponible
         $paymentMethodId = $request->payment_method_id;
         

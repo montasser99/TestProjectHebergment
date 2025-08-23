@@ -145,9 +145,9 @@ export default function Index({ commandes, filters }) {
     return (
         <AuthenticatedLayoutAdmin
             header={
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                        <h2 className="text-lg sm:text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
                             {t('orders')} - {t('management')}
                         </h2>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -165,8 +165,8 @@ export default function Index({ commandes, filters }) {
             <div className="py-6">
                 <div className="w-full px-4 sm:px-6 lg:px-8">
                     {/* Filtres horizontaux */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* Recherche */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -179,7 +179,7 @@ export default function Index({ commandes, filters }) {
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         placeholder={t('searchByUserNameOrEmail')}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                        className="w-full pl-10 pr-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-base sm:text-sm"
                                     />
                                 </div>
                             </div>
@@ -192,7 +192,7 @@ export default function Index({ commandes, filters }) {
                                 <select
                                     value={selectedStatut}
                                     onChange={(e) => setSelectedStatut(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                    className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-base sm:text-sm"
                                 >
                                     <option value="">{t('allStatuses')}</option>
                                     <option value="en_attente">{t('pending')}</option>
@@ -210,7 +210,7 @@ export default function Index({ commandes, filters }) {
                                     type="date"
                                     value={dateFrom}
                                     onChange={(e) => setDateFrom(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                    className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-base sm:text-sm"
                                 />
                             </div>
 
@@ -223,23 +223,23 @@ export default function Index({ commandes, filters }) {
                                     type="date"
                                     value={dateTo}
                                     onChange={(e) => setDateTo(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                    className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-base sm:text-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Boutons d'action */}
-                        <div className="flex items-center space-x-3 mt-4">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-3 mt-4">
                             <button
                                 onClick={applyFilters}
-                                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center"
+                                className="bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-2 px-4 rounded-lg transition-colors flex items-center justify-center font-medium"
                             >
                                 <FunnelIcon className="h-4 w-4 mr-2" />
                                 {t('applyFilters')}
                             </button>
                             <button
                                 onClick={resetFilters}
-                                className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors"
+                                className="bg-gray-600 hover:bg-gray-700 text-white py-3 sm:py-2 px-4 rounded-lg transition-colors flex items-center justify-center font-medium"
                             >
                                 {t('resetFilters')}
                             </button>
@@ -258,8 +258,10 @@ export default function Index({ commandes, filters }) {
                             </p>
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                            <div className="overflow-x-auto">
+                        <>
+                            {/* Desktop - Tableau */}
+                            <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                                <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                     <thead className="bg-gray-50 dark:bg-gray-700">
                                                 <tr>
@@ -375,7 +377,103 @@ export default function Index({ commandes, filters }) {
                                             </tbody>
                                 </table>
                             </div>
-                        </div>
+                            </div>
+
+                            {/* Mobile - Cartes */}
+                            <div className="md:hidden space-y-4">
+                                {commandes.data.map((commande) => (
+                                    <div key={commande.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                                        {/* Header avec commande et statut */}
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className="flex items-center space-x-2">
+                                                <ShoppingCartIcon className="h-5 w-5 text-gray-400" />
+                                                <div>
+                                                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                        #{commande.id}
+                                                    </div>
+                                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                        {commande.commande_produits?.length || 0} {t('products')}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${getStatutColor(commande.statut)}`}>
+                                                {getStatutIcon(commande.statut)}
+                                                <span className="ml-1">{getStatutText(commande.statut)}</span>
+                                            </span>
+                                        </div>
+
+                                        {/* Informations client */}
+                                        <div className="mb-3">
+                                            <div className="flex items-center space-x-2 mb-1">
+                                                <UserIcon className="h-4 w-4 text-gray-400" />
+                                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {commande.user?.name}
+                                                </span>
+                                            </div>
+                                            <div className="text-sm text-gray-600 dark:text-gray-400 pl-6">
+                                                {commande.user?.email}
+                                            </div>
+                                        </div>
+
+                                        {/* Date et total */}
+                                        <div className="mb-4 space-y-2">
+                                            <div className="flex items-center justify-between text-sm">
+                                                <div className="flex items-center space-x-2">
+                                                    <CalendarIcon className="h-4 w-4 text-gray-400" />
+                                                    <span className="text-gray-500 dark:text-gray-400">{t('date')}:</span>
+                                                </div>
+                                                <span className="text-gray-900 dark:text-white font-medium">
+                                                    {new Date(commande.date_commande).toLocaleString('fr-FR', {
+                                                        day: '2-digit',
+                                                        month: '2-digit', 
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-gray-500 dark:text-gray-400">{t('total')}:</span>
+                                                <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                                    {commande.total_amount} TND
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-200 dark:border-gray-600">
+                                            <Link
+                                                href={`/admin/commandes/${commande.id}`}
+                                                className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 flex-1 justify-center"
+                                            >
+                                                <EyeIcon className="h-4 w-4 mr-1" />
+                                                {t('view')}
+                                            </Link>
+                                            
+                                            {commande.statut === 'en_attente' && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleConfirm(commande)}
+                                                        className="inline-flex items-center px-3 py-2 border border-green-300 dark:border-green-600 rounded-md text-sm font-medium text-green-700 dark:text-green-300 bg-white dark:bg-gray-700 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-200 flex-1 justify-center"
+                                                    >
+                                                        <CheckIcon className="h-4 w-4 mr-1" />
+                                                        {t('confirm')}
+                                                    </button>
+                                                    
+                                                    <button
+                                                        onClick={() => handleCancel(commande)}
+                                                        className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-600 rounded-md text-sm font-medium text-red-700 dark:text-red-300 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 w-full justify-center mt-2"
+                                                    >
+                                                        <XCircleIcon className="h-4 w-4 mr-1" />
+                                                        {t('cancel')}
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
 
                     {/* Pagination */}

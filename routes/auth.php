@@ -33,6 +33,26 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+        
+    // Routes pour la vérification par email avec code
+    Route::get('verify-email-code', [RegisteredUserController::class, 'showVerificationForm'])
+        ->name('verify.email.form');
+        
+    Route::post('verify-email-code', [RegisteredUserController::class, 'verifyEmail'])
+        ->name('verify.email.code');
+        
+    Route::post('resend-verification-code', [RegisteredUserController::class, 'resendCode'])
+        ->name('resend.verification.code');
+        
+    // Routes pour la vérification du reset password par code
+    Route::get('verify-password-reset', [PasswordResetLinkController::class, 'showPasswordVerifyForm'])
+        ->name('password.verify.form');
+        
+    Route::post('verify-password-reset', [PasswordResetLinkController::class, 'verifyPasswordResetCode'])
+        ->name('password.verify.code');
+        
+    Route::post('resend-password-code', [PasswordResetLinkController::class, 'resendPasswordCode'])
+        ->name('resend.password.code');
 });
 
 Route::middleware('auth')->group(function () {

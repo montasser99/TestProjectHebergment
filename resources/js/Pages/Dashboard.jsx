@@ -8,7 +8,9 @@ export default function Dashboard() {
     const user = props.auth?.user;
     
     // Choisir le layout selon le rôle
-    const AuthenticatedLayout = user?.role === 'admin' ? AuthenticatedLayoutAdmin : AuthenticatedLayoutClient;
+    const AuthenticatedLayout = (user?.role === 'admin' || user?.role === 'gestionnaire_commande') 
+        ? AuthenticatedLayoutAdmin 
+        : AuthenticatedLayoutClient;
     return (
         <AuthenticatedLayout
             header={

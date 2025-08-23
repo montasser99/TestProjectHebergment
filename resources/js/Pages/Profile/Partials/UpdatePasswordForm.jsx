@@ -3,7 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Transition } from '@headlessui/react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,6 +11,10 @@ export default function UpdatePasswordForm({ className = '' }) {
     const passwordInput = useRef();
     const currentPasswordInput = useRef();
     const { t } = useTranslation();
+    const user = usePage().props.auth.user;
+    
+    // Vérifier si l'utilisateur peut modifier son mot de passe (seulement admin)
+    const canChangePassword = user.role === 'admin'|| user.role === 'gestionnaire_commande'|| user.role === 'client';
 
     const {
         data,
@@ -28,6 +32,8 @@ export default function UpdatePasswordForm({ className = '' }) {
 
     const updatePassword = (e) => {
         e.preventDefault();
+
+        if (!canChangePassword) return;
 
         put(route('password.update'), {
             preserveScroll: true,
@@ -54,7 +60,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {t('updatePasswordDescription')}
+                    {canChangePassword ? t('updatePasswordDescription') : t('passwordReadOnlyDescription')}
                 </p>
             </header>
 
@@ -69,12 +75,13 @@ export default function UpdatePasswordForm({ className = '' }) {
                         id="current_password"
                         ref={currentPasswordInput}
                         value={data.current_password}
-                        onChange={(e) =>
-                            setData('current_password', e.target.value)
+                        onChange={canChangePassword ? (e) =>
+                            setData('current_password', e.target.value) : undefined
                         }
                         type="password"
                         className="mt-1 block w-full"
                         autoComplete="current-password"
+                        disabled={!canChangePassword}
                     />
 
                     <InputError
@@ -90,10 +97,11 @@ export default function UpdatePasswordForm({ className = '' }) {
                         id="password"
                         ref={passwordInput}
                         value={data.password}
-                        onChange={(e) => setData('password', e.target.value)}
+                        onChange={canChangePassword ? (e) => setData('password', e.target.value) : undefined}
                         type="password"
                         className="mt-1 block w-full"
                         autoComplete="new-password"
+                        disabled={!canChangePassword}
                     />
 
                     <InputError message={errors.password} className="mt-2" />
@@ -108,12 +116,13 @@ export default function UpdatePasswordForm({ className = '' }) {
                     <TextInput
                         id="password_confirmation"
                         value={data.password_confirmation}
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
+                        onChange={canChangePassword ? (e) =>
+                            setData('password_confirmation', e.target.value) : undefined
                         }
                         type="password"
                         className="mt-1 block w-full"
                         autoComplete="new-password"
+                        disabled={!canChangePassword}
                     />
 
                     <InputError
@@ -122,21 +131,23 @@ export default function UpdatePasswordForm({ className = '' }) {
                     />
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>{t('save')}</PrimaryButton>
+                {canChangePassword && (
+                    <div className="flex items-center gap-4">
+                        <PrimaryButton disabled={processing}>{t('save')}</PrimaryButton>
 
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {t('save')}.
-                        </p>
-                    </Transition>
-                </div>
+                        <Transition
+                            show={recentlySuccessful}
+                            enter="transition ease-in-out"
+                            enterFrom="opacity-0"
+                            leave="transition ease-in-out"
+                            leaveTo="opacity-0"
+                        >
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {t('saved')}.
+                            </p>
+                        </Transition>
+                    </div>
+                )}
             </form>
         </section>
     );

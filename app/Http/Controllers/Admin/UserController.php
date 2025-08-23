@@ -59,7 +59,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['required', 'string', 'max:20'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'in:admin,client'],
+            'role' => ['required', 'in:admin,client,gestionnaire_commande'],
         ]);
 
         User::create([
@@ -94,7 +94,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'phone' => ['required', 'string', 'max:20'],
-            'role' => ['required', 'in:admin,client'],
+            'role' => ['required', 'in:admin,client,gestionnaire_commande'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 

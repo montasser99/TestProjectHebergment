@@ -20,6 +20,7 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        'selectedPaymentMethod' => request('payment_method_id') ? \App\Models\PriceMethode::find(request('payment_method_id')) : null,
     ]);
 });
 
@@ -28,22 +29,22 @@ Route::get('/unauthorized', function () {
 })->name('unauthorized');
 
 Route::get('/dashboard', function () {
-    // Rediriger les clients vers la sélection de méthode de paiement
+    // Rediriger les clients vers la page d'accueil Welcome
     if (auth()->user()->role === 'client') {
-        return redirect()->route('client.payment-method');
+        return redirect('/');
     }
     
-    // Rediriger les admins vers le dashboard admin
-    if (auth()->user()->role === 'admin') {
+    // Rediriger les admins et gestionnaires de commandes vers le dashboard admin
+    if (auth()->user()->role === 'admin' || auth()->user()->role === 'gestionnaire_commande') {
         return redirect()->route('admin.dashboard');
     }
     
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route pour rediriger immédiatement vers la sélection de méthode pour les clients
+// Route pour rediriger les clients vers la page d'accueil
 Route::get('/client', function () {
-    return redirect()->route('client.payment-method');
+    return redirect('/');
 })->middleware(['auth'])->name('client.home');
 
 Route::middleware('auth')->group(function () {
@@ -58,9 +59,6 @@ Route::middleware('auth')->group(function () {
 // ROUTES ADMIN - Gestion des utilisateurs
 // ================================
 Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-    
-    // Dashboard admin
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Gestion des utilisateurs - CRUD manuel selon cahier des charges
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -97,6 +95,15 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::put('/produits/{produit}', [ProduitController::class, 'update'])->name('produits.update');
     Route::delete('/produits/{produit}', [ProduitController::class, 'destroy'])->name('produits.destroy');
 
+});
+
+// ================================
+// ROUTES COMMANDES - Accessible aux admins ET gestionnaires de commandes
+// ================================
+Route::middleware(['order.manager'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard (accessible aussi aux gestionnaires de commandes)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
     // Gestion des commandes
     Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
     Route::get('/commandes/{commande}', [CommandeController::class, 'show'])->name('commandes.show');
@@ -118,6 +125,7 @@ Route::middleware(['auth'])->group(function () {
     // Panier
     Route::get('/cart', [CartController::class, 'index'])->name('client.cart');
     Route::post('/api/cart/product-info', [CartController::class, 'getProductInfo'])->name('api.cart.product-info');
+    Route::post('/api/cart/validate-product', [CartController::class, 'validateProductForCart'])->name('api.cart.validate-product');
     
     // Commandes - CORRECTION: Utiliser Client\CommandeController
     Route::get('/checkout', [\App\Http\Controllers\Client\CommandeController::class, 'checkout'])->name('client.checkout');

@@ -136,28 +136,52 @@ class CommandeController extends Controller
             'cart_items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        // Vérifier que l'utilisateur a au moins un contact social ou des notes
-        if (!$validated['client_facebook'] && !$validated['client_instagram'] && !$validated['notes_client']) {
-            return back()->withErrors(['contact' => 'Veuillez fournir au moins un moyen de contact (Facebook, Instagram) ou des notes.']);
-        }
+        // Les informations de contact sont optionnelles
+        // L'utilisateur peut passer une commande sans fournir ces informations
 
         DB::beginTransaction();
         
         try {
             $totalAmount = 0;
             $cartDetails = [];
+            $paymentMethod = PriceMethode::find($validated['payment_method_id']);
+            
+            if (!$paymentMethod) {
+                throw new \Exception("Méthode de paiement invalide.");
+            }
 
-            // Calculer le total et préparer les détails
-            foreach ($validated['cart_items'] as $item) {
-                $produit = Produit::with(['produitPrices' => function($q) use ($validated) {
-                    $q->where('id_price_methode', $validated['payment_method_id']);
-                }])->find($item['product_id']);
+            // Calculer le total et préparer les détails avec validations renforcées
+            foreach ($validated['cart_items'] as $index => $item) {
+                // Validation supplémentaire de la quantité
+                if ($item['quantity'] <= 0 || $item['quantity'] > 999) {
+                    throw new \Exception("Quantité invalide pour le produit n°" . ($index + 1) . ". Quantité demandée: " . $item['quantity']);
+                }
+                
+                $produit = Produit::with([
+                    'produitPrices' => function($q) use ($validated) {
+                        $q->where('id_price_methode', $validated['payment_method_id']);
+                    },
+                    'typeProduit'
+                ])->find($item['product_id']);
 
-                if (!$produit || $produit->produitPrices->isEmpty()) {
-                    throw new \Exception("Produit non disponible: " . $item['product_id']);
+                // Vérification renforcée du produit
+                if (!$produit) {
+                    throw new \Exception("Le produit avec l'ID " . $item['product_id'] . " n'existe pas.");
+                }
+                
+                // Vérification critique : Le produit DOIT avoir un prix pour cette méthode de paiement
+                if ($produit->produitPrices->isEmpty()) {
+                    throw new \Exception("Le produit '" . $produit->label . "' n'a pas de prix configuré pour la méthode de paiement '" . $paymentMethod->methode_name . "'. Veuillez choisir une autre méthode de paiement.");
                 }
 
-                $price = $produit->produitPrices->first()->price;
+                $priceRecord = $produit->produitPrices->first();
+                $price = $priceRecord->price;
+                
+                // Vérification que le prix est valide
+                if ($price <= 0) {
+                    throw new \Exception("Prix invalide pour le produit '" . $produit->label . "'.");
+                }
+                
                 $subtotal = $price * $item['quantity'];
                 $totalAmount += $subtotal;
 
@@ -168,8 +192,11 @@ class CommandeController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
-
-            $paymentMethod = PriceMethode::find($validated['payment_method_id']);
+            
+            // Vérification du montant total
+            if ($totalAmount <= 0) {
+                throw new \Exception("Le montant total de la commande doit être positif.");
+            }
 
             // Créer la commande
             $commande = Commande::create([
@@ -231,6 +258,11 @@ class CommandeController extends Controller
      */
     public function success(Commande $commande)
     {
+        // Vérifier que l'utilisateur peut accéder à l'interface client
+        if (auth()->user()->role === 'gestionnaire_commande') {
+            return redirect()->route('unauthorized');
+        }
+        
         // Vérifier que la commande appartient à l'utilisateur connecté
         if ($commande->user_id !== Auth::id()) {
             abort(403);
@@ -248,6 +280,11 @@ class CommandeController extends Controller
      */
     public function history()
     {
+        // Vérifier que l'utilisateur peut accéder à l'interface client
+        if (auth()->user()->role === 'gestionnaire_commande') {
+            return redirect()->route('unauthorized');
+        }
+        
         $commandes = Commande::where('user_id', Auth::id())
                             ->with('commandeProduits')
                             ->latest('date_commande')

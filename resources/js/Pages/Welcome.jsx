@@ -1,361 +1,560 @@
 import { Head, Link } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import GuestHeader from '@/Components/GuestHeader';
+import AuthenticatedLayoutClient from '@/Layouts/Client/AuthenticatedLayoutClient';
+import {
+    ShoppingBagIcon,
+    TruckIcon,
+    ShieldCheckIcon,
+    StarIcon,
+    ArrowRightIcon,
+    PlayCircleIcon,
+    XMarkIcon
+} from '@heroicons/react/24/outline';
 
-export default function Welcome({ auth, laravelVersion, phpVersion }) {
-    const handleImageError = () => {
-        document
-            .getElementById('screenshot-container')
-            ?.classList.add('!hidden');
-        document.getElementById('docs-card')?.classList.add('!row-span-1');
-        document
-            .getElementById('docs-card-content')
-            ?.classList.add('!flex-row');
-        document.getElementById('background')?.classList.add('!hidden');
-    };
+export default function Welcome({ auth, selectedPaymentMethod }) {
+    const { t, i18n } = useTranslation();
+    const [isDark, setIsDark] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState(selectedPaymentMethod);
 
-    return (
+    // Initialiser la langue depuis localStorage
+    useEffect(() => {
+        const savedLanguage = localStorage.getItem('language');
+        if (savedLanguage && savedLanguage !== i18n.language) {
+            i18n.changeLanguage(savedLanguage);
+        }
+    }, []);
+
+    // Récupérer la méthode de paiement depuis localStorage si non fournie
+    useEffect(() => {
+        if (!paymentMethod) {
+            const savedPaymentMethod = localStorage.getItem('selectedPaymentMethod');
+            if (savedPaymentMethod) {
+                try {
+                    const parsedPaymentMethod = JSON.parse(savedPaymentMethod);
+                    setPaymentMethod(parsedPaymentMethod);
+                } catch (error) {
+                    console.error('Error parsing payment method from localStorage:', error);
+                }
+            }
+        }
+    }, [paymentMethod]);
+
+    // Gestion du logo selon le mode sombre
+    useEffect(() => {
+        const checkDarkMode = () => {
+            const darkMode = localStorage.getItem('darkMode') === 'true' || 
+                           document.documentElement.classList.contains('dark');
+            setIsDark(darkMode);
+        };
+
+        checkDarkMode();
+
+        const observer = new MutationObserver(checkDarkMode);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        return () => observer.disconnect();
+    }, []);
+
+    const features = [
+        {
+            icon: ShoppingBagIcon,
+            title: t('qualityProducts'),
+            description: t('qualityProductsDesc')
+        },
+        {
+            icon: TruckIcon,
+            title: t('directContact'),
+            description: t('directContactDesc')
+        },
+        {
+            icon: ShieldCheckIcon,
+            title: t('personalizedService'),
+            description: t('personalizedServiceDesc')
+        }
+    ];
+
+    // Contenu principal de la page Welcome
+    const welcomeContent = (
         <>
-            <Head title="Welcome" />
-            <div className="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
-                <img
-                    id="background"
-                    className="absolute -left-20 top-0 max-w-[877px]"
-                    src="https://laravel.com/assets/img/welcome/background.svg"
-                />
-                <div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
-                    <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
-                        <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
-                            <div className="flex lg:col-start-2 lg:justify-center">
-                                <svg
-                                    className="h-12 w-auto text-white lg:h-16 lg:text-[#FF2D20]"
-                                    viewBox="0 0 62 65"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M61.8548 14.6253C61.8778 14.7102 61.8895 14.7978 61.8897 14.8858V28.5615C61.8898 28.737 61.8434 28.9095 61.7554 29.0614C61.6675 29.2132 61.5409 29.3392 61.3887 29.4265L49.9104 36.0351V49.1337C49.9104 49.4902 49.7209 49.8192 49.4118 49.9987L25.4519 63.7916C25.3971 63.8227 25.3372 63.8427 25.2774 63.8639C25.255 63.8714 25.2338 63.8851 25.2101 63.8913C25.0426 63.9354 24.8666 63.9354 24.6991 63.8913C24.6716 63.8838 24.6467 63.8689 24.6205 63.8589C24.5657 63.8389 24.5084 63.8215 24.456 63.7916L0.501061 49.9987C0.348882 49.9113 0.222437 49.7853 0.134469 49.6334C0.0465019 49.4816 0.000120578 49.3092 0 49.1337L0 8.10652C0 8.01678 0.0124642 7.92953 0.0348998 7.84477C0.0423783 7.8161 0.0598282 7.78993 0.0697995 7.76126C0.0884958 7.70891 0.105946 7.65531 0.133367 7.6067C0.152063 7.5743 0.179485 7.54812 0.20192 7.51821C0.230588 7.47832 0.256763 7.43719 0.290416 7.40229C0.319084 7.37362 0.356476 7.35243 0.388883 7.32751C0.425029 7.29759 0.457436 7.26518 0.498568 7.2415L12.4779 0.345059C12.6296 0.257786 12.8015 0.211853 12.9765 0.211853C13.1515 0.211853 13.3234 0.257786 13.475 0.345059L25.4531 7.2415H25.4556C25.4955 7.26643 25.5292 7.29759 25.5653 7.32626C25.5977 7.35119 25.6339 7.37362 25.6625 7.40104C25.6974 7.43719 25.7224 7.47832 25.7523 7.51821C25.7735 7.54812 25.8021 7.5743 25.8196 7.6067C25.8483 7.65656 25.8645 7.70891 25.8844 7.76126C25.8944 7.78993 25.9118 7.8161 25.9193 7.84602C25.9423 7.93096 25.954 8.01853 25.9542 8.10652V33.7317L35.9355 27.9844V14.8846C35.9355 14.7973 35.948 14.7088 35.9704 14.6253C35.9792 14.5954 35.9954 14.5692 36.0053 14.5405C36.0253 14.4882 36.0427 14.4346 36.0702 14.386C36.0888 14.3536 36.1163 14.3274 36.1375 14.2975C36.1674 14.2576 36.1923 14.2165 36.2272 14.1816C36.2559 14.1529 36.292 14.1317 36.3244 14.1068C36.3618 14.0769 36.3942 14.0445 36.4341 14.0208L48.4147 7.12434C48.5663 7.03694 48.7383 6.99094 48.9133 6.99094C49.0883 6.99094 49.2602 7.03694 49.4118 7.12434L61.3899 14.0208C61.4323 14.0457 61.4647 14.0769 61.5021 14.1055C61.5333 14.1305 61.5694 14.1529 61.5981 14.1803C61.633 14.2165 61.6579 14.2576 61.6878 14.2975C61.7103 14.3274 61.7377 14.3536 61.7551 14.386C61.7838 14.4346 61.8 14.4882 61.8199 14.5405C61.8312 14.5692 61.8474 14.5954 61.8548 14.6253ZM59.893 27.9844V16.6121L55.7013 19.0252L49.9104 22.3593V33.7317L59.8942 27.9844H59.893ZM47.9149 48.5566V37.1768L42.2187 40.4299L25.953 49.7133V61.2003L47.9149 48.5566ZM1.99677 9.83281V48.5566L23.9562 61.199V49.7145L12.4841 43.2219L12.4804 43.2194L12.4754 43.2169C12.4368 43.1945 12.4044 43.1621 12.3682 43.1347C12.3371 43.1097 12.3009 43.0898 12.2735 43.0624L12.271 43.0586C12.2386 43.0275 12.2162 42.9888 12.1887 42.9539C12.1638 42.9203 12.1339 42.8916 12.114 42.8567L12.1127 42.853C12.0903 42.8156 12.0766 42.7707 12.0604 42.7283C12.0442 42.6909 12.023 42.656 12.013 42.6161C12.0005 42.5688 11.998 42.5177 11.9931 42.4691C11.9881 42.4317 11.9781 42.3943 11.9781 42.3569V15.5801L6.18848 12.2446L1.99677 9.83281ZM12.9777 2.36177L2.99764 8.10652L12.9752 13.8513L22.9541 8.10527L12.9752 2.36177H12.9777ZM18.1678 38.2138L23.9574 34.8809V9.83281L19.7657 12.2459L13.9749 15.5801V40.6281L18.1678 38.2138ZM48.9133 9.14105L38.9344 14.8858L48.9133 20.6305L58.8909 14.8846L48.9133 9.14105ZM47.9149 22.3593L42.124 19.0252L37.9323 16.6121V27.9844L43.7219 31.3174L47.9149 33.7317V22.3593ZM24.9533 47.987L39.59 39.631L46.9065 35.4555L36.9352 29.7145L25.4544 36.3242L14.9907 42.3482L24.9533 47.987Z"
-                                        fill="currentColor"
-                                    />
-                                </svg>
+            <Head title={t('welcome')} />
+            
+            {/* Hero Section */}
+            <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        {/* Left side - Text Content */}
+                        <div className="text-center lg:text-left">
+                            <div className="animate-fade-in-up">
+                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6">
+                                    <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                                        AMAZIGHI
+                                    </span>
+                                    <br />
+                                    <span className="text-gray-800 dark:text-gray-200">SHOP</span>
+                                </h1>
                             </div>
-                            <nav className="-mx-3 flex flex-1 justify-end">
-                                {auth.user ? (
-                                    <Link
-                                        href={route('dashboard')}
-                                        className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                    >
-                                        Dashboard
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <Link
-                                            href={route('login')}
-                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                        >
-                                            Log in
-                                        </Link>
-                                        <Link
-                                            href={route('register')}
-                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                        >
-                                            Register
-                                        </Link>
-                                    </>
-                                )}
-                            </nav>
-                        </header>
+                            
+                            <div className="animate-fade-in-up animation-delay-200">
+                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto lg:mx-0 leading-relaxed">
+                                    {t('welcomeSubtitle')}
+                                </p>
+                            </div>
 
-                        <main className="mt-6">
-                            <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
-                                <a
-                                    href="https://laravel.com/docs"
-                                    id="docs-card"
-                                    className="flex flex-col items-start gap-6 overflow-hidden rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 focus:outline-none focus-visible:ring-[#FF2D20] md:row-span-3 lg:p-10 lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70 dark:hover:ring-zinc-700 dark:focus-visible:ring-[#FF2D20]"
-                                >
-                                    <div
-                                        id="screenshot-container"
-                                        className="relative flex w-full flex-1 items-stretch"
-                                    >
-                                        <img
-                                            src="https://laravel.com/assets/img/welcome/docs-light.svg"
-                                            alt="Laravel documentation screenshot"
-                                            className="aspect-video h-full w-full flex-1 rounded-[10px] object-cover object-top drop-shadow-[0px_4px_34px_rgba(0,0,0,0.06)] dark:hidden"
-                                            onError={handleImageError}
-                                        />
-                                        <img
-                                            src="https://laravel.com/assets/img/welcome/docs-dark.svg"
-                                            alt="Laravel documentation screenshot"
-                                            className="hidden aspect-video h-full w-full flex-1 rounded-[10px] object-cover object-top drop-shadow-[0px_4px_34px_rgba(0,0,0,0.25)] dark:block"
-                                        />
-                                        <div className="absolute -bottom-16 -left-16 h-40 w-[calc(100%+8rem)] bg-gradient-to-b from-transparent via-white to-white dark:via-zinc-900 dark:to-zinc-900"></div>
-                                    </div>
-
-                                    <div className="relative flex items-center gap-6 lg:items-end">
-                                        <div
-                                            id="docs-card-content"
-                                            className="flex items-start gap-6 lg:flex-col"
-                                        >
-                                            <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                                <svg
-                                                    className="size-5 sm:size-6"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
+                            <div className="animate-fade-in-up animation-delay-400">
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center relative z-[20]">
+                                    {!auth.user && (
+                                        <>
+                                            <Link
+                                                href={route('register')}
+                                                className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg pointer-events-auto"
+                                            >
+                                                {t('startShopping')}
+                                                <ArrowRightIcon className="ml-2 h-5 w-5" />
+                                            </Link>
+                                            <Link
+                                                href={route('login')}
+                                                className="inline-flex items-center px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 pointer-events-auto"
+                                            >
+                                                {t('login')}
+                                            </Link>
+                                        </>
+                                    )}
+                                    {auth.user && auth.user.role === 'client' && (
+                                        <>
+                                            {paymentMethod ? (
+                                                <Link
+                                                    href={`/client/products?payment_method_id=${paymentMethod.id}`}
+                                                    className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                                                 >
-                                                    <path
-                                                        fill="#FF2D20"
-                                                        d="M23 4a1 1 0 0 0-1.447-.894L12.224 7.77a.5.5 0 0 1-.448 0L2.447 3.106A1 1 0 0 0 1 4v13.382a1.99 1.99 0 0 0 1.105 1.79l9.448 4.728c.14.065.293.1.447.1.154-.005.306-.04.447-.105l9.453-4.724a1.99 1.99 0 0 0 1.1-1.789V4ZM3 6.023a.25.25 0 0 1 .362-.223l7.5 3.75a.251.251 0 0 1 .138.223v11.2a.25.25 0 0 1-.362.224l-7.5-3.75a.25.25 0 0 1-.138-.22V6.023Zm18 11.2a.25.25 0 0 1-.138.224l-7.5 3.75a.249.249 0 0 1-.329-.099.249.249 0 0 1-.033-.12V9.772a.251.251 0 0 1 .138-.224l7.5-3.75a.25.25 0 0 1 .362.224v11.2Z"
-                                                    />
-                                                    <path
-                                                        fill="#FF2D20"
-                                                        d="m3.55 1.893 8 4.048a1.008 1.008 0 0 0 .9 0l8-4.048a1 1 0 0 0-.9-1.785l-7.322 3.706a.506.506 0 0 1-.452 0L4.454.108a1 1 0 0 0-.9 1.785H3.55Z"
-                                                    />
-                                                </svg>
-                                            </div>
-
-                                            <div className="pt-3 sm:pt-5 lg:pt-0">
-                                                <h2 className="text-xl font-semibold text-black dark:text-white">
-                                                    Documentation
-                                                </h2>
-
-                                                <p className="mt-4 text-sm/relaxed">
-                                                    Laravel has wonderful
-                                                    documentation covering every
-                                                    aspect of the framework.
-                                                    Whether you are a newcomer
-                                                    or have prior experience
-                                                    with Laravel, we recommend
-                                                    reading our documentation
-                                                    from beginning to end.
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <svg
-                                            className="size-6 shrink-0 stroke-[#FF2D20]"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
+                                                    {t('viewCatalog')}
+                                                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    href="/client/products"
+                                                    className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                                                >
+                                                    Découvrir nos produits
+                                                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                                                </Link>
+                                            )}
+                                        </>
+                                    )}
+                                    {auth.user && auth.user.role !== 'client' && (
+                                        <Link
+                                            href={route('dashboard')}
+                                            className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                                         >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                                            />
-                                        </svg>
-                                    </div>
-                                </a>
-
-                                <a
-                                    href="https://laracasts.com"
-                                    className="flex items-start gap-4 rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 focus:outline-none focus-visible:ring-[#FF2D20] lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70 dark:hover:ring-zinc-700 dark:focus-visible:ring-[#FF2D20]"
-                                >
-                                    <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                        <svg
-                                            className="size-5 sm:size-6"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <g fill="#FF2D20">
-                                                <path d="M24 8.25a.5.5 0 0 0-.5-.5H.5a.5.5 0 0 0-.5.5v12a2.5 2.5 0 0 0 2.5 2.5h19a2.5 2.5 0 0 0 2.5-2.5v-12Zm-7.765 5.868a1.221 1.221 0 0 1 0 2.264l-6.626 2.776A1.153 1.153 0 0 1 8 18.123v-5.746a1.151 1.151 0 0 1 1.609-1.035l6.626 2.776ZM19.564 1.677a.25.25 0 0 0-.177-.427H15.6a.106.106 0 0 0-.072.03l-4.54 4.543a.25.25 0 0 0 .177.427h3.783c.027 0 .054-.01.073-.03l4.543-4.543ZM22.071 1.318a.047.047 0 0 0-.045.013l-4.492 4.492a.249.249 0 0 0 .038.385.25.25 0 0 0 .14.042h5.784a.5.5 0 0 0 .5-.5v-2a2.5 2.5 0 0 0-1.925-2.432ZM13.014 1.677a.25.25 0 0 0-.178-.427H9.101a.106.106 0 0 0-.073.03l-4.54 4.543a.25.25 0 0 0 .177.427H8.4a.106.106 0 0 0 .073-.03l4.54-4.543ZM6.513 1.677a.25.25 0 0 0-.177-.427H2.5A2.5 2.5 0 0 0 0 3.75v2a.5.5 0 0 0 .5.5h1.4a.106.106 0 0 0 .073-.03l4.54-4.543Z" />
-                                            </g>
-                                        </svg>
-                                    </div>
-
-                                    <div className="pt-3 sm:pt-5">
-                                        <h2 className="text-xl font-semibold text-black dark:text-white">
-                                            Laracasts
-                                        </h2>
-
-                                        <p className="mt-4 text-sm/relaxed">
-                                            Laracasts offers thousands of video
-                                            tutorials on Laravel, PHP, and
-                                            JavaScript development. Check them
-                                            out, see for yourself, and massively
-                                            level up your development skills in
-                                            the process.
-                                        </p>
-                                    </div>
-
-                                    <svg
-                                        className="size-6 shrink-0 self-center stroke-[#FF2D20]"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="1.5"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                                        />
-                                    </svg>
-                                </a>
-
-                                <a
-                                    href="https://laravel-news.com"
-                                    className="flex items-start gap-4 rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 focus:outline-none focus-visible:ring-[#FF2D20] lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70 dark:hover:ring-zinc-700 dark:focus-visible:ring-[#FF2D20]"
-                                >
-                                    <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                        <svg
-                                            className="size-5 sm:size-6"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <g fill="#FF2D20">
-                                                <path d="M8.75 4.5H5.5c-.69 0-1.25.56-1.25 1.25v4.75c0 .69.56 1.25 1.25 1.25h3.25c.69 0 1.25-.56 1.25-1.25V5.75c0-.69-.56-1.25-1.25-1.25Z" />
-                                                <path d="M24 10a3 3 0 0 0-3-3h-2V2.5a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2V20a3.5 3.5 0 0 0 3.5 3.5h17A3.5 3.5 0 0 0 24 20V10ZM3.5 21.5A1.5 1.5 0 0 1 2 20V3a.5.5 0 0 1 .5-.5h14a.5.5 0 0 1 .5.5v17c0 .295.037.588.11.874a.5.5 0 0 1-.484.625L3.5 21.5ZM22 20a1.5 1.5 0 1 1-3 0V9.5a.5.5 0 0 1 .5-.5H21a1 1 0 0 1 1 1v10Z" />
-                                                <path d="M12.751 6.047h2a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-2A.75.75 0 0 1 12 7.3v-.5a.75.75 0 0 1 .751-.753ZM12.751 10.047h2a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-2A.75.75 0 0 1 12 11.3v-.5a.75.75 0 0 1 .751-.753ZM4.751 14.047h10a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-10A.75.75 0 0 1 4 15.3v-.5a.75.75 0 0 1 .751-.753ZM4.75 18.047h7.5a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-7.5A.75.75 0 0 1 4 19.3v-.5a.75.75 0 0 1 .75-.753Z" />
-                                            </g>
-                                        </svg>
-                                    </div>
-
-                                    <div className="pt-3 sm:pt-5">
-                                        <h2 className="text-xl font-semibold text-black dark:text-white">
-                                            Laravel News
-                                        </h2>
-
-                                        <p className="mt-4 text-sm/relaxed">
-                                            Laravel News is a community driven
-                                            portal and newsletter aggregating
-                                            all of the latest and most important
-                                            news in the Laravel ecosystem,
-                                            including new package releases and
-                                            tutorials.
-                                        </p>
-                                    </div>
-
-                                    <svg
-                                        className="size-6 shrink-0 self-center stroke-[#FF2D20]"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="1.5"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                                        />
-                                    </svg>
-                                </a>
-
-                                <div className="flex items-start gap-4 rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800">
-                                    <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                        <svg
-                                            className="size-5 sm:size-6"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <g fill="#FF2D20">
-                                                <path d="M16.597 12.635a.247.247 0 0 0-.08-.237 2.234 2.234 0 0 1-.769-1.68c.001-.195.03-.39.084-.578a.25.25 0 0 0-.09-.267 8.8 8.8 0 0 0-4.826-1.66.25.25 0 0 0-.268.181 2.5 2.5 0 0 1-2.4 1.824.045.045 0 0 0-.045.037 12.255 12.255 0 0 0-.093 3.86.251.251 0 0 0 .208.214c2.22.366 4.367 1.08 6.362 2.118a.252.252 0 0 0 .32-.079 10.09 10.09 0 0 0 1.597-3.733ZM13.616 17.968a.25.25 0 0 0-.063-.407A19.697 19.697 0 0 0 8.91 15.98a.25.25 0 0 0-.287.325c.151.455.334.898.548 1.328.437.827.981 1.594 1.619 2.28a.249.249 0 0 0 .32.044 29.13 29.13 0 0 0 2.506-1.99ZM6.303 14.105a.25.25 0 0 0 .265-.274 13.048 13.048 0 0 1 .205-4.045.062.062 0 0 0-.022-.07 2.5 2.5 0 0 1-.777-.982.25.25 0 0 0-.271-.149 11 11 0 0 0-5.6 2.815.255.255 0 0 0-.075.163c-.008.135-.02.27-.02.406.002.8.084 1.598.246 2.381a.25.25 0 0 0 .303.193 19.924 19.924 0 0 1 5.746-.438ZM9.228 20.914a.25.25 0 0 0 .1-.393 11.53 11.53 0 0 1-1.5-2.22 12.238 12.238 0 0 1-.91-2.465.248.248 0 0 0-.22-.187 18.876 18.876 0 0 0-5.69.33.249.249 0 0 0-.179.336c.838 2.142 2.272 4 4.132 5.353a.254.254 0 0 0 .15.048c1.41-.01 2.807-.282 4.117-.802ZM18.93 12.957l-.005-.008a.25.25 0 0 0-.268-.082 2.21 2.21 0 0 1-.41.081.25.25 0 0 0-.217.2c-.582 2.66-2.127 5.35-5.75 7.843a.248.248 0 0 0-.09.299.25.25 0 0 0 .065.091 28.703 28.703 0 0 0 2.662 2.12.246.246 0 0 0 .209.037c2.579-.701 4.85-2.242 6.456-4.378a.25.25 0 0 0 .048-.189 13.51 13.51 0 0 0-2.7-6.014ZM5.702 7.058a.254.254 0 0 0 .2-.165A2.488 2.488 0 0 1 7.98 5.245a.093.093 0 0 0 .078-.062 19.734 19.734 0 0 1 3.055-4.74.25.25 0 0 0-.21-.41 12.009 12.009 0 0 0-10.4 8.558.25.25 0 0 0 .373.281 12.912 12.912 0 0 1 4.826-1.814ZM10.773 22.052a.25.25 0 0 0-.28-.046c-.758.356-1.55.635-2.365.833a.25.25 0 0 0-.022.48c1.252.43 2.568.65 3.893.65.1 0 .2 0 .3-.008a.25.25 0 0 0 .147-.444c-.526-.424-1.1-.917-1.673-1.465ZM18.744 8.436a.249.249 0 0 0 .15.228 2.246 2.246 0 0 1 1.352 2.054c0 .337-.08.67-.23.972a.25.25 0 0 0 .042.28l.007.009a15.016 15.016 0 0 1 2.52 4.6.25.25 0 0 0 .37.132.25.25 0 0 0 .096-.114c.623-1.464.944-3.039.945-4.63a12.005 12.005 0 0 0-5.78-10.258.25.25 0 0 0-.373.274c.547 2.109.85 4.274.901 6.453ZM9.61 5.38a.25.25 0 0 0 .08.31c.34.24.616.561.8.935a.25.25 0 0 0 .3.127.631.631 0 0 1 .206-.034c2.054.078 4.036.772 5.69 1.991a.251.251 0 0 0 .267.024c.046-.024.093-.047.141-.067a.25.25 0 0 0 .151-.23A29.98 29.98 0 0 0 15.957.764a.25.25 0 0 0-.16-.164 11.924 11.924 0 0 0-2.21-.518.252.252 0 0 0-.215.076A22.456 22.456 0 0 0 9.61 5.38Z" />
-                                            </g>
-                                        </svg>
-                                    </div>
-
-                                    <div className="pt-3 sm:pt-5">
-                                        <h2 className="text-xl font-semibold text-black dark:text-white">
-                                            Vibrant Ecosystem
-                                        </h2>
-
-                                        <p className="mt-4 text-sm/relaxed">
-                                            Laravel's robust library of
-                                            first-party tools and libraries,
-                                            such as{' '}
-                                            <a
-                                                href="https://forge.laravel.com"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white dark:focus-visible:ring-[#FF2D20]"
-                                            >
-                                                Forge
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://vapor.laravel.com"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Vapor
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://nova.laravel.com"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Nova
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://envoyer.io"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Envoyer
-                                            </a>
-                                            , and{' '}
-                                            <a
-                                                href="https://herd.laravel.com"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Herd
-                                            </a>{' '}
-                                            help you take your projects to the
-                                            next level. Pair them with powerful
-                                            open source libraries like{' '}
-                                            <a
-                                                href="https://laravel.com/docs/billing"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Cashier
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://laravel.com/docs/dusk"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Dusk
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://laravel.com/docs/broadcasting"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Echo
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://laravel.com/docs/horizon"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Horizon
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://laravel.com/docs/sanctum"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Sanctum
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="https://laravel.com/docs/telescope"
-                                                className="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                            >
-                                                Telescope
-                                            </a>
-                                            , and more.
-                                        </p>
-                                    </div>
+                                            {t('goToDashboard')}
+                                            <ArrowRightIcon className="ml-2 h-5 w-5" />
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
-                        </main>
+                        </div>
 
-                        <footer className="py-16 text-center text-sm text-black dark:text-white/70">
-                            Laravel v{laravelVersion} (PHP v{phpVersion})
-                        </footer>
+                        {/* Right side - Logo with Animation */}
+                        <div className="flex justify-center lg:justify-end pointer-events-none">
+                            <div className="animate-fade-in-up animation-delay-600">
+                                <div className="relative">
+                                    {/* Background decoration */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-full animate-pulse pointer-events-none"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-full animate-ping animation-delay-1000 pointer-events-none"></div>
+                                    
+                                    {/* Logo */}
+                                    <div className="relative p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 cursor-pointer pointer-events-auto"
+                                         onClick={() => setIsModalOpen(true)}>
+                                        <img 
+                                            src={isDark ? "/images/AMAZIGHI_SHOP_W.png" : "/images/AMAZIGHI_SHOP_D.png"}
+                                            alt="Logo Amazighi Shop"
+                                            className="w-48 h-48 md:w-64 md:h-64 lg:w-72 lg:h-72 object-contain animate-float"
+                                        />
+                                        {/* Indicateur de clic */}
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black/10 rounded-full pointer-events-none">
+                                            <div className="bg-white/90 dark:bg-gray-800/90 rounded-full p-2">
+                                                <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Floating elements */}
+                                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-blue-500 rounded-full animate-bounce animation-delay-2000 opacity-70 pointer-events-none"></div>
+                                    <div className="absolute -bottom-6 -left-6 w-6 h-6 bg-indigo-500 rounded-full animate-bounce animation-delay-3000 opacity-60 pointer-events-none"></div>
+                                    <div className="absolute top-1/2 -right-8 w-4 h-4 bg-purple-500 rounded-full animate-pulse animation-delay-2500 opacity-50 pointer-events-none"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            {/* Section pour les clients connectés avec méthode sélectionnée */}
+            {auth.user && auth.user.role === 'client' && paymentMethod && (
+                <section className="py-8 px-4 sm:px-6 lg:px-8 bg-blue-50 dark:bg-blue-900/20">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-blue-200 dark:border-blue-700">
+                            <div className="flex items-center justify-center mb-4">
+                                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-3"></div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                    {t('selectedPaymentMethod')}
+                                </h3>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                                {t('youHaveChosen')} : <span className="font-bold text-blue-600 dark:text-blue-400 capitalize">
+                                    {(paymentMethod?.methode_name || paymentMethod?.name)?.replace('_', ' ') || t('notSpecified')}
+                                </span>
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {t('catalogAvailableWithPrices')}
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Features Section */}
+            <section className="py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                            {t('whyChooseUs')}
+                        </h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                            {t('whyChooseUsDesc')}
+                        </p>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {features.map((feature, index) => (
+                            <div 
+                                key={index}
+                                className="text-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                                style={{ animationDelay: `${index * 200 + 600}ms` }}
+                            >
+                                <div className="animate-fade-in-up">
+                                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <feature.icon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                        {feature.description}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Stats Section */}
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-800">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid md:grid-cols-4 gap-8 text-center">
+                        <div className="animate-fade-in-up animation-delay-800">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                                2025
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300">
+                                {t('launchYear')}
+                            </div>
+                        </div>
+                        <div className="animate-fade-in-up animation-delay-1000">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                                100%
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300">
+                                {t('authentic')}
+                            </div>
+                        </div>
+                        <div className="animate-fade-in-up animation-delay-1200">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                                24/7
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300">
+                                {t('support')}
+                            </div>
+                        </div>
+                        <div className="animate-fade-in-up animation-delay-1400">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                                {t('newLabel')}
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300">
+                                {t('freshStart')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Payment Process Section */}
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
+                <div className="max-w-6xl mx-auto">
+                    <div className="text-center mb-16">
+                        <div className="animate-fade-in-up animation-delay-1400">
+                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                                {t('paymentProcess')}
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300">
+                                {t('paymentProcessDesc')}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Process Steps */}
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                        {[
+                            { title: t('step1Title'), desc: t('step1Desc'), icon: '1', color: 'blue' },
+                            { title: t('step2Title'), desc: t('step2Desc'), icon: '2', color: 'green' },
+                            { title: t('step3Title'), desc: t('step3Desc'), icon: '3', color: 'purple' },
+                            { title: t('step4Title'), desc: t('step4Desc'), icon: '4', color: 'orange' }
+                        ].map((step, index) => (
+                            <div key={index} className={`text-center animate-fade-in-up animation-delay-${1400 + (index * 200)}`}>
+                                <div className={`w-16 h-16 bg-${step.color}-100 dark:bg-${step.color}-900 rounded-full flex items-center justify-center mx-auto mb-4`}>
+                                    <span className={`text-2xl font-bold text-${step.color}-600 dark:text-${step.color}-400`}>
+                                        {step.icon}
+                                    </span>
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    {step.title}
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    {step.desc}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Payment Methods */}
+                    <div className="text-center">
+                        <div className="animate-fade-in-up animation-delay-2000">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+                                {t('availablePaymentMethods')}
+                            </h3>
+                            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                                {[
+                                    { name: t('ooredooCard'), color: 'red', bgColor: 'red-50 dark:bg-red-900/20' },
+                                    { name: t('d17Card'), color: 'blue', bgColor: 'blue-50 dark:bg-blue-900/20' },
+                                    { name: t('posteTunisieCard'), color: 'yellow', bgColor: 'yellow-50 dark:bg-yellow-900/20' },
+                                    { name: t('otherMethods'), color: 'gray', bgColor: 'gray-50 dark:bg-gray-700' }
+                                ].map((method, index) => (
+                                    <div key={index} className={`p-6 rounded-xl border-2 border-${method.color}-200 dark:border-${method.color}-700 bg-${method.bgColor} transition-all duration-300 hover:shadow-lg`}>
+                                        <div className={`w-12 h-12 bg-${method.color}-100 dark:bg-${method.color}-900 rounded-lg flex items-center justify-center mx-auto mb-4`}>
+                                            <svg className={`w-6 h-6 text-${method.color}-600 dark:text-${method.color}-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 dark:text-white">
+                                            {method.name}
+                                        </h4>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Contact Section */}
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800">
+                <div className="max-w-4xl mx-auto text-center">
+                    <div className="animate-fade-in-up animation-delay-1600">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                            {t('contactUs')}
+                        </h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            {t('contactUsDesc')}
+                        </p>
+                        
+                        <div className="grid md:grid-cols-3 gap-6 mb-8">
+                            {/* WhatsApp / Phone */}
+                            <div className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg">
+                                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                                    </svg>
+                                </div>
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{t('phoneWhatsApp')}</h3>
+                                <a href="tel:28638936" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                                    28 638 936
+                                </a>
+                            </div>
+
+                            {/* Email */}
+                            <div className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg">
+                                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Email</h3>
+                                <a href="mailto:amazighishoop@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                                    amazighishoop@gmail.com
+                                </a>
+                            </div>
+
+                            {/* Instagram */}
+                            <div className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg">
+                                <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-6 h-6 text-pink-600 dark:text-pink-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                    </svg>
+                                </div>
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Instagram</h3>
+                                <a href="https://www.instagram.com/amazighi_shop/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                                    @amazighi_shop
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            {!auth.user && (
+                <section className="py-16 px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 md:p-12 text-white">
+                            <div className="animate-fade-in-up animation-delay-1600">
+                                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                                    {t('readyToStart')}
+                                </h2>
+                                <p className="text-xl mb-8 opacity-90">
+                                    {t('readyToStartDesc')}
+                                </p>
+                                <Link
+                                    href={route('register')}
+                                    className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+                                >
+                                    {t('createAccount')}
+                                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Image Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                     onClick={() => setIsModalOpen(false)}>
+                    <div className="relative max-w-4xl max-h-full bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-2xl"
+                         onClick={(e) => e.stopPropagation()}>
+                        {/* Close button */}
+                        <button 
+                            onClick={() => setIsModalOpen(false)}
+                            className="absolute top-4 right-4 z-10 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors duration-200"
+                        >
+                            <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                        </button>
+                        
+                        {/* Image */}
+                        <div className="p-6">
+                            <img 
+                                src={isDark ? "/images/AMAZIGHI_SHOP_W.png" : "/images/AMAZIGHI_SHOP_D.png"}
+                                alt="Logo Amazighi Shop - Vue complète"
+                                className="w-full h-auto max-h-[80vh] object-contain mx-auto"
+                            />
+                        </div>
+                        
+                        {/* Caption */}
+                        <div className="px-6 pb-6">
+                            <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
+                                Logo AMAZIGHI SHOP - Cliquez en dehors pour fermer
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Footer */}
+            <footer className="py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+                <div className="max-w-7xl mx-auto text-center">
+                    <p className="text-gray-600 dark:text-gray-400">
+                        © 2025 AMAZIGHI SHOP. {t('allRightsReserved')}
+                    </p>
+                </div>
+            </footer>
+
+            {/* Custom CSS for animations */}
+            <style>{`
+                @keyframes fade-in-up {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .animate-fade-in-up {
+                    animation: fade-in-up 0.8s ease-out forwards;
+                    opacity: 0;
+                }
+                
+                @keyframes float {
+                    0%, 100% {
+                        transform: translateY(0px) rotate(0deg);
+                    }
+                    33% {
+                        transform: translateY(-10px) rotate(1deg);
+                    }
+                    66% {
+                        transform: translateY(5px) rotate(-1deg);
+                    }
+                }
+                
+                .animate-float {
+                    animation: float 6s ease-in-out infinite;
+                }
+                
+                .shadow-3xl {
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                }
+                
+                .animation-delay-200 { animation-delay: 0.2s; }
+                .animation-delay-400 { animation-delay: 0.4s; }
+                .animation-delay-600 { animation-delay: 0.6s; }
+                .animation-delay-800 { animation-delay: 0.8s; }
+                .animation-delay-1000 { animation-delay: 1.0s; }
+                .animation-delay-1200 { animation-delay: 1.2s; }
+                .animation-delay-1400 { animation-delay: 1.4s; }
+                .animation-delay-1600 { animation-delay: 1.6s; }
+                .animation-delay-2000 { animation-delay: 2.0s; }
+                .animation-delay-2500 { animation-delay: 2.5s; }
+                .animation-delay-3000 { animation-delay: 3.0s; }
+            `}</style>
         </>
+    );
+
+    // Si l'utilisateur est connecté et est un client, utiliser le layout client
+    if (auth.user && auth.user.role === 'client') {
+        return (
+            <AuthenticatedLayoutClient auth={auth}>
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden w-full">
+                    {welcomeContent}
+                </div>
+            </AuthenticatedLayoutClient>
+        );
+    }
+
+    // Sinon (utilisateur non connecté ou autre rôle), utiliser le layout guest
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+            <GuestHeader auth={auth} />
+            {welcomeContent}
+        </div>
     );
 }

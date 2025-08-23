@@ -90,32 +90,32 @@ export default function Edit({ auth, produit, typeProduits, priceMethodes }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3 min-w-0">
                     <Link
                         href="/admin/produits"
-                        className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200"
+                        className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200 flex-shrink-0"
                     >
                         <ArrowLeftIcon className="h-5 w-5" />
                     </Link>
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                        {t('editProduct')} : {produit.label}
+                    <h2 className="text-lg sm:text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200 truncate">
+                        <span className="hidden sm:inline">{t('editProduct')} : </span>{produit.label}
                     </h2>
                 </div>
             }
         >
             <Head title={`${t('editProduct')} - ${produit.label}`} />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <form onSubmit={submit} className="space-y-8">
+            <div className="py-8 sm:py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <form onSubmit={submit} className="space-y-6 sm:space-y-8">
                         {/* Informations de base */}
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                            <div className="p-6">
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div className="p-4 sm:p-6">
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                                     {t('productInfo')}
                                 </h3>
                                 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 gap-4 sm:gap-6">
                                     {/* Nom du produit avec limite de 25 caractères */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="label" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -297,7 +297,9 @@ export default function Edit({ auth, produit, typeProduits, priceMethodes }) {
                         <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                             <div className="p-6">
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                                    {t('pricesConfiguration')} *
+                                    {i18n.language === 'ar' 
+                                        ? `(${t('optional')}) ${t('pricesConfiguration')}` 
+                                        : `${t('pricesConfiguration')} (${t('optional')})`}
                                 </h3>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -313,7 +315,6 @@ export default function Edit({ auth, produit, typeProduits, priceMethodes }) {
                                                         value={data.prices[index]?.price || ''}
                                                         onChange={(e) => handlePriceChange(index, e.target.value)}
                                                         className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-900 dark:text-white"
-                                                        required
                                                         min="0"
                                                         step="0.001"
                                                         placeholder="0.000"

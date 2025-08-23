@@ -50,6 +50,21 @@ class User extends Authenticatable
         return $this->role === 'client';
     }
 
+    public function isOrderManager()
+    {
+        return $this->role === 'gestionnaire_commande';
+    }
+
+    public function canManageOrders()
+    {
+        return $this->role === 'admin' || $this->role === 'gestionnaire_commande';
+    }
+
+    public function isAdminOrOrderManager()
+    {
+        return $this->role === 'admin' || $this->role === 'gestionnaire_commande';
+    }
+
     public function isBlocked()
     {
         return $this->is_blocked;

@@ -14,6 +14,9 @@ export default function UpdateProfileInformation({
     const user = usePage().props.auth.user;
     const { t } = useTranslation();
 
+    // Vérifier si l'utilisateur peut modifier son profil (seulement admin)
+    const canEditProfile = user.role === 'admin';
+
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
@@ -22,6 +25,8 @@ export default function UpdateProfileInformation({
 
     const submit = (e) => {
         e.preventDefault();
+
+        if (!canEditProfile) return;
 
         patch(route('profile.update'));
     };
@@ -34,7 +39,7 @@ export default function UpdateProfileInformation({
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {t('updateProfileDescription')}
+                    {canEditProfile ? t('updateProfileDescription') : t('profileReadOnlyDescription')}
                 </p>
             </header>
 
@@ -46,10 +51,11 @@ export default function UpdateProfileInformation({
                         id="name"
                         className="mt-1 block w-full"
                         value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                        isFocused
+                        onChange={canEditProfile ? (e) => setData('name', e.target.value) : undefined}
+                        required={canEditProfile}
+                        isFocused={canEditProfile}
                         autoComplete="name"
+                        disabled={!canEditProfile}
                     />
 
                     <InputError className="mt-2" message={errors.name} />
@@ -63,9 +69,10 @@ export default function UpdateProfileInformation({
                         type="email"
                         className="mt-1 block w-full"
                         value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
+                        onChange={canEditProfile ? (e) => setData('email', e.target.value) : undefined}
+                        required={canEditProfile}
                         autoComplete="username"
+                        disabled={!canEditProfile}
                     />
 
                     <InputError className="mt-2" message={errors.email} />
@@ -94,21 +101,23 @@ export default function UpdateProfileInformation({
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>{t('save')}</PrimaryButton>
+                {canEditProfile && (
+                    <div className="flex items-center gap-4">
+                        <PrimaryButton disabled={processing}>{t('save')}</PrimaryButton>
 
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {t('save')}.
-                        </p>
-                    </Transition>
-                </div>
+                        <Transition
+                            show={recentlySuccessful}
+                            enter="transition ease-in-out"
+                            enterFrom="opacity-0"
+                            leave="transition ease-in-out"
+                            leaveTo="opacity-0"
+                        >
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {t('saved')}.
+                            </p>
+                        </Transition>
+                    </div>
+                )}
             </form>
         </section>
     );

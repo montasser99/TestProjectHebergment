@@ -16,9 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-            // Ajouter l'alias pour le middleware admin
+            // Ajouter les alias pour les middlewares
     $middleware->alias([
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'order.manager' => \App\Http\Middleware\OrderManagerMiddleware::class,
     ]);
 
 
