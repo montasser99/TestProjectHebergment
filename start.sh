@@ -108,12 +108,13 @@ ENVEOF
         echo "- DB_USERNAME=$MYSQLUSER"
     fi
     
-    # Configurer l'URL de l'application
+    # Configurer l'URL de l'application Railway
     if [ -n "$RAILWAY_STATIC_URL" ]; then
-        sed -i 's|APP_URL=.*|APP_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
-        sed -i 's|ASSET_URL=.*|ASSET_URL=https://'"$RAILWAY_STATIC_URL"'|' .env
-        sed -i 's|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|' .env
-        sed -i 's|APP_ENV=.*|APP_ENV=production|' .env
+        echo "🔧 Configuration URL Railway: https://$RAILWAY_STATIC_URL"
+        sed -i "s|APP_URL=.*|APP_URL=https://$RAILWAY_STATIC_URL|" .env
+        sed -i "s|ASSET_URL=.*|ASSET_URL=https://$RAILWAY_STATIC_URL|" .env || echo "ASSET_URL=https://$RAILWAY_STATIC_URL" >> .env
+        sed -i "s|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|" .env || echo "APP_FORCE_HTTPS=true" >> .env
+        sed -i "s|APP_ENV=.*|APP_ENV=production|" .env
         
         # Configurer les cookies de session pour HTTPS en production
         sed -i 's|SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|' .env
@@ -151,14 +152,14 @@ APP_NAME="AMAZIGHI SHOP"
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
-APP_URL=https://\${RAILWAY_STATIC_URL:-localhost}
+APP_URL=https://localhost
 
 DB_CONNECTION=mysql
-DB_HOST=\${MYSQLHOST}
-DB_PORT=\${MYSQLPORT:-3306}
-DB_DATABASE=\${MYSQLDATABASE}
-DB_USERNAME=\${MYSQLUSER}
-DB_PASSWORD=\${MYSQLPASSWORD}
+DB_HOST=$MYSQLHOST
+DB_PORT=${MYSQLPORT:-3306}
+DB_DATABASE=$MYSQLDATABASE
+DB_USERNAME=$MYSQLUSER
+DB_PASSWORD=$MYSQLPASSWORD
 
 SESSION_DRIVER=database
 CACHE_STORE=database
@@ -167,8 +168,8 @@ QUEUE_CONNECTION=database
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=\${MAIL_USERNAME}
-MAIL_PASSWORD=\${MAIL_PASSWORD}
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@amazighishop.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
