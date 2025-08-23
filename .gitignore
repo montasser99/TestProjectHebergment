@@ -4,6 +4,16 @@
 .env.backup
 .env.production
 .env.local
+.env.railway
+.env.secrets
+
+# Fichiers de credentials sensibles
+*credentials*
+*secrets*
+*passwords*
+*.key
+*.pem
+*.p12
 .phpactor.json
 .phpunit.result.cache
 /.fleet

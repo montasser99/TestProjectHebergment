@@ -72,6 +72,14 @@ if [ ! -f ".env" ]; then
         # Configurer les proxies de confiance pour Railway
         sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
+    
+    # Configurer SMTP si les variables sont définies
+    if [ -n "$MAIL_USERNAME" ]; then
+        echo "📧 Configuration SMTP..."
+        sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"$MAIL_USERNAME"'|' .env
+        sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"$MAIL_PASSWORD"'|' .env
+        echo "✅ SMTP configuré avec $MAIL_USERNAME"
+    fi
 fi
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
