@@ -59,6 +59,7 @@ echo "- DB_CONNECTION: $DB_CONNECTION"
 echo "- PORT: $PORT"
 echo "- MYSQLHOST: $MYSQLHOST"
 echo "- MYSQLDATABASE: $MYSQLDATABASE"
+echo "- RAILWAY_STATIC_URL: $RAILWAY_STATIC_URL"
 
 # Créer un fichier .env minimal si il n'existe pas
 if [ ! -f ".env" ]; then

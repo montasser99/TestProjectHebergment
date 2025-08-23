@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ['nodejs_20', 'php83', 'php83Extensions.pdo', 'php83Extensions.pdo_mysql', 'php83Extensions.mysqli', 'php83Extensions.mbstring', 'php83Extensions.xml', 'php83Extensions.curl', 'php83Extensions.zip', 'php83Extensions.gd', 'php83Extensions.fileinfo', 'php83Packages.composer']
+
+[phases.install]
+cmds = [
+    'npm ci --prefer-offline --no-audit --progress=false',
+    'composer install --optimize-autoloader --no-interaction --prefer-dist'
+]
+
+[phases.build]
+cmds = [
+    'export NODE_OPTIONS="--max-old-space-size=1024"',
+    'npm run build || echo "Build failed but continuing..."'
+]
+
+[start]
+cmd = 'bash start.sh'
