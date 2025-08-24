@@ -206,10 +206,6 @@ php artisan route:clear
 php artisan view:clear
 php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cache --force > /dev/null 2>&1 || echo "Session cleanup completed"
 
-# Configuration du stockage Railway
-echo "🗂️ Configuration du stockage Railway..."
-bash railway-storage.sh || echo "⚠️ Script de stockage non trouvé"
-
 # Créer le lien de stockage seulement si il n'existe pas
 if [ ! -L "public/storage" ]; then
     echo "🔗 Création du lien de stockage..."
@@ -217,11 +213,6 @@ if [ ! -L "public/storage" ]; then
 else
     echo "✅ Lien de stockage déjà existant, préservation des données"
 fi
-
-# Créer les dossiers d'images s'ils n'existent pas
-mkdir -p public/storage/produits
-mkdir -p public/storage/commandes
-chmod -R 755 public/storage/
 
 # Tester la connexion à la base de données
 echo "🗄️ Test de la connexion à la base de données..."
