@@ -206,13 +206,38 @@ php artisan route:clear
 php artisan view:clear
 php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cache --force > /dev/null 2>&1 || echo "Session cleanup completed"
 
-# Créer le lien de stockage seulement si il n'existe pas
-if [ ! -L "public/storage" ]; then
-    echo "🔗 Création du lien de stockage..."
-    php artisan storage:link || echo "⚠️ Erreur lors de la création du lien"
-else
-    echo "✅ Lien de stockage déjà existant, préservation des données"
+# Supprimer le lien existant s'il y en a un
+if [ -L "public/storage" ]; then
+    echo "🗂️ Suppression de l'ancien lien de stockage..."
+    rm -f public/storage
 fi
+
+# Créer le lien de stockage
+echo "🔗 Création du lien de stockage..."
+php artisan storage:link || echo "⚠️ Erreur lors de la création du lien"
+
+# Vérifier que le lien fonctionne
+if [ -L "public/storage" ]; then
+    echo "✅ Lien de stockage créé avec succès"
+    echo "📁 Vérification du lien: $(ls -la public/storage 2>/dev/null || echo 'Lien non accessible')"
+else
+    echo "⚠️ Le lien de stockage n'a pas été créé, création manuelle..."
+    # Créer manuellement le lien symbolique
+    ln -sf ../storage/app/public public/storage
+    echo "🔗 Lien manuel créé: $(ls -la public/storage 2>/dev/null || echo 'Toujours pas accessible')"
+fi
+
+# Créer les dossiers de stockage s'ils n'existent pas
+echo "📁 Création des dossiers de stockage..."
+mkdir -p storage/app/public/produits
+mkdir -p storage/app/public/commandes
+chmod -R 755 storage/app/public/
+
+# Afficher l'état du stockage pour debug
+echo "📊 État du stockage actuel:"
+echo "- public/storage existe: $([ -e public/storage ] && echo 'OUI' || echo 'NON')"
+echo "- public/storage est un lien: $([ -L public/storage ] && echo 'OUI' || echo 'NON')"
+echo "- storage/app/public existe: $([ -d storage/app/public ] && echo 'OUI' || echo 'NON')"
 
 # Tester la connexion à la base de données
 echo "🗄️ Test de la connexion à la base de données..."

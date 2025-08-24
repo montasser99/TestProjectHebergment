@@ -28,6 +28,27 @@ Route::get('/unauthorized', function () {
     return Inertia::render('Errors/Unauthorized');
 })->name('unauthorized');
 
+// Route de debug pour le stockage (à supprimer en production)
+Route::get('/debug/storage', function () {
+    if (config('app.env') !== 'production') {
+        return response()->json(['error' => 'Debug route only available in production for Railway testing']);
+    }
+    
+    $info = [
+        'public_storage_exists' => file_exists(public_path('storage')),
+        'public_storage_is_link' => is_link(public_path('storage')),
+        'storage_app_public_exists' => file_exists(storage_path('app/public')),
+        'produits_folder_exists' => file_exists(storage_path('app/public/produits')),
+        'commandes_folder_exists' => file_exists(storage_path('app/public/commandes')),
+        'storage_link_target' => is_link(public_path('storage')) ? readlink(public_path('storage')) : null,
+        'produits_files' => file_exists(storage_path('app/public/produits')) ? scandir(storage_path('app/public/produits')) : [],
+        'app_url' => config('app.url'),
+        'asset_url' => config('app.asset_url'),
+    ];
+    
+    return response()->json($info);
+})->name('debug.storage');
+
 Route::get('/dashboard', function () {
     // Rediriger les clients vers la page d'accueil Welcome
     if (auth()->user()->role === 'client') {
