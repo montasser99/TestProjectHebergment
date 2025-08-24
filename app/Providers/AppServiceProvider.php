@@ -32,14 +32,23 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
                 \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
                 \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
-                \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO |
+                \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
             );
             
-            // Force HTTPS URL generation
+            // Force HTTPS URL generation for all URLs
             URL::forceScheme('https');
             if (config('app.url')) {
                 URL::forceRootUrl(config('app.url'));
             }
+            
+            // Force HTTPS for pagination and other Laravel components
+            $this->app['request']->server->set('HTTPS', 'on');
+        }
+        
+        // Always force HTTPS in production regardless of proxy headers
+        if (config('app.env') === 'production' || config('app.force_https', false)) {
+            URL::forceScheme('https');
         }
     }
 }

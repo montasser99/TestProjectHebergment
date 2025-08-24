@@ -115,6 +115,7 @@ ENVEOF
         sed -i "s|APP_URL=.*|APP_URL=https://$RAILWAY_STATIC_URL|" .env
         sed -i "s|ASSET_URL=.*|ASSET_URL=https://$RAILWAY_STATIC_URL|" .env || echo "ASSET_URL=https://$RAILWAY_STATIC_URL" >> .env
         sed -i "s|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|" .env || echo "APP_FORCE_HTTPS=true" >> .env
+        sed -i "s|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|" .env || echo "TRUSTED_PROXIES=*" >> .env
         sed -i "s|APP_ENV=.*|APP_ENV=production|" .env
     elif [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
         echo "🔧 Configuration URL Railway: https://$RAILWAY_PUBLIC_DOMAIN"
@@ -167,6 +168,8 @@ APP_KEY=
 APP_DEBUG=false
 APP_URL=https://amazighi-shop.up.railway.app
 ASSET_URL=https://amazighi-shop.up.railway.app
+APP_FORCE_HTTPS=true
+TRUSTED_PROXIES=*
 
 DB_CONNECTION=mysql
 DB_HOST=$MYSQLHOST
