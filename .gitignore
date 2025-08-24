@@ -26,7 +26,13 @@
 /node_modules
 /public/build
 /public/hot
-/public/storage
+# Exclure le dossier storage mais garder la structure pour Railway
+/public/storage/*
+!/public/storage/produits/
+!/public/storage/commandes/
+!/public/storage/default-*.png
+# Garder les fichiers .gitkeep pour préserver la structure des dossiers
+!/public/storage/**/.gitkeep
 /storage/*.key
 /storage/pail
 /vendor

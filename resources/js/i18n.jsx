@@ -576,7 +576,10 @@ const resources = {
             goToClientInterface: 'Aller à l\'interface client',
             backToAdminPanel: 'Retourner au panneau admin',
             switchToClient: 'Mode client',
-            switchToAdmin: 'Mode admin'
+            switchToAdmin: 'Mode admin',
+            
+            // Checkout
+            noContactInformation: 'Aucune information de contact'
 
         }
     },
@@ -1154,7 +1157,10 @@ const resources = {
             goToClientInterface: 'الذهاب إلى واجهة العميل',
             backToAdminPanel: 'العودة إلى لوحة الإدارة',
             switchToClient: 'وضع العميل',
-            switchToAdmin: 'وضع الإدارة'
+            switchToAdmin: 'وضع الإدارة',
+            
+            // Checkout
+            noContactInformation: 'لا توجد معلومات اتصال'
 
         }
     },
@@ -1732,7 +1738,10 @@ const resources = {
             goToClientInterface: 'Go to client interface',
             backToAdminPanel: 'Back to admin panel',
             switchToClient: 'Client mode',
-            switchToAdmin: 'Admin mode'
+            switchToAdmin: 'Admin mode',
+            
+            // Checkout
+            noContactInformation: 'No contact information'
 
         }
     }

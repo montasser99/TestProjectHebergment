@@ -76,10 +76,10 @@ class ProduitController extends Controller
             'currency' => ['nullable', 'string', 'max:10'],
             'type_produit_id' => ['required', 'exists:type_produits,id'],
             
-            // Prix pour chaque méthode
-            'prices' => ['required', 'array'],
+            // Prix pour chaque méthode (optionnel)
+            'prices' => ['nullable', 'array'],
             'prices.*.price_methode_id' => ['required', 'exists:price_methodes,id'],
-            'prices.*.price' => ['required', 'numeric', 'min:0'],
+            'prices.*.price' => ['nullable', 'numeric', 'min:0'],
             
             // Contact social media (optionnel)
             'contact.instagram_page' => ['nullable', 'string', 'max:255'],
@@ -115,12 +115,17 @@ class ProduitController extends Controller
             'type_produit_id' => $validated['type_produit_id'],
         ]);
 
-        // Créer les prix pour chaque méthode
-        foreach ($validated['prices'] as $priceData) {
-            $produit->produitPrices()->create([
-                'id_price_methode' => $priceData['price_methode_id'],
-                'price' => $priceData['price'],
-            ]);
+        // Créer les prix pour chaque méthode (seulement si prix renseigné)
+        if (isset($validated['prices']) && is_array($validated['prices'])) {
+            foreach ($validated['prices'] as $priceData) {
+                // Créer uniquement si le prix est renseigné et > 0
+                if (isset($priceData['price']) && is_numeric($priceData['price']) && $priceData['price'] > 0) {
+                    $produit->produitPrices()->create([
+                        'id_price_methode' => $priceData['price_methode_id'],
+                        'price' => $priceData['price'],
+                    ]);
+                }
+            }
         }
 
         // Créer le contact social media si au moins un champ est rempli
@@ -182,10 +187,10 @@ class ProduitController extends Controller
             'currency' => ['nullable', 'string', 'max:10'],
             'type_produit_id' => ['required', 'exists:type_produits,id'],
             
-            // Prix pour chaque méthode
-            'prices' => ['required', 'array'],
+            // Prix pour chaque méthode (optionnel)
+            'prices' => ['nullable', 'array'],
             'prices.*.price_methode_id' => ['required', 'exists:price_methodes,id'],
-            'prices.*.price' => ['required', 'numeric', 'min:0'],
+            'prices.*.price' => ['nullable', 'numeric', 'min:0'],
             
             // Contact social media (optionnel)
             'contact.instagram_page' => ['nullable', 'string', 'max:255'],
@@ -217,11 +222,16 @@ class ProduitController extends Controller
 
         // Mettre à jour les prix - supprimer les anciens et créer les nouveaux
         $produit->produitPrices()->delete();
-        foreach ($validated['prices'] as $priceData) {
-            $produit->produitPrices()->create([
-                'id_price_methode' => $priceData['price_methode_id'],
-                'price' => $priceData['price'],
-            ]);
+        if (isset($validated['prices']) && is_array($validated['prices'])) {
+            foreach ($validated['prices'] as $priceData) {
+                // Créer uniquement si le prix est renseigné et > 0
+                if (isset($priceData['price']) && is_numeric($priceData['price']) && $priceData['price'] > 0) {
+                    $produit->produitPrices()->create([
+                        'id_price_methode' => $priceData['price_methode_id'],
+                        'price' => $priceData['price'],
+                    ]);
+                }
+            }
         }
 
         // Mettre à jour le contact social media
