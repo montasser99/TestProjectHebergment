@@ -206,10 +206,10 @@ php artisan route:clear
 php artisan view:clear
 php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cache --force > /dev/null 2>&1 || echo "Session cleanup completed"
 
-# Supprimer le lien existant s'il y en a un
-if [ -L "public/storage" ]; then
-    echo "🗂️ Suppression de l'ancien lien de stockage..."
-    rm -f public/storage
+# Supprimer le lien/dossier existant s'il y en a un
+if [ -e "public/storage" ]; then
+    echo "🗂️ Suppression de l'ancien storage ($([ -L public/storage ] && echo 'lien' || echo 'dossier'))..."
+    rm -rf public/storage
 fi
 
 # Créer le lien de stockage
