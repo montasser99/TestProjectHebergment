@@ -88,7 +88,7 @@ MAIL_PORT=587
 MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@amazighishop.com
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 ENVEOF
     
@@ -188,7 +188,7 @@ MAIL_PORT=587
 MAIL_USERNAME=${MAIL_USERNAME}
 MAIL_PASSWORD=${MAIL_PASSWORD}
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@amazighishop.com
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
