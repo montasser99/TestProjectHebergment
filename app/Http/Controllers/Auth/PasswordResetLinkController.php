@@ -61,11 +61,19 @@ class PasswordResetLinkController extends Controller
                            ->with('status', 'Un code de vérification a été envoyé à votre adresse email.');
                            
         } catch (\Exception $e) {
-            // En cas d'erreur d'envoi d'email
+            // En cas d'erreur d'envoi d'email - Logger l'erreur détaillée
+            \Log::error('Erreur envoi email reset password', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'mail_mailer' => config('mail.default'),
+                'mail_from' => config('mail.from.address')
+            ]);
+            
             $verification->delete();
        
             throw ValidationException::withMessages([
-                'email' => ['Impossible d\'envoyer l\'email de vérification. Veuillez réessayer.'],
+                'email' => ['Impossible d\'envoyer l\'email de vérification. Erreur: ' . $e->getMessage()],
             ]);
         }
     }
@@ -148,8 +156,14 @@ class PasswordResetLinkController extends Controller
             return back()->with('status', 'Un nouveau code de vérification a été envoyé.');
             
         } catch (\Exception $e) {
+            \Log::error('Erreur renvoi email reset password', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return back()->withErrors([
-                'email' => 'Impossible de renvoyer l\'email. Veuillez réessayer.'
+                'email' => 'Impossible de renvoyer l\'email. Erreur: ' . $e->getMessage()
             ]);
         }
     }

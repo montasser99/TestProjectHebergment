@@ -82,7 +82,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=resend
+MAIL_MAILER=log
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-onboarding@resend.dev}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
@@ -141,7 +141,7 @@ ENVEOF
     echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..." 
     echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
     
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
     sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
     
@@ -182,7 +182,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=resend
+MAIL_MAILER=log
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-onboarding@resend.dev}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
@@ -213,7 +213,7 @@ echo "🔍 Vérification des variables après cache clear:"
 echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..."
 echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
 
-sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
+sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
 sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
 
@@ -304,11 +304,22 @@ if [ -n "$MYSQLHOST" ]; then
         echo "✅ Données seedées"
         
         # Test de la configuration email
-        echo "📧 Test de la configuration email Resend..."
+        echo "📧 Test de la configuration email en mode LOG..."
         php artisan tinker --execute="
             echo 'MAIL_MAILER: ' . config('mail.default') . PHP_EOL;
-            echo 'RESEND_API_KEY: ' . (config('services.resend.key') ? substr(config('services.resend.key'), 0, 10) . '...' : 'NON CONFIGURÉ') . PHP_EOL;
             echo 'MAIL_FROM_ADDRESS: ' . config('mail.from.address') . PHP_EOL;
+            echo 'LOG_CHANNEL: ' . config('logging.default') . PHP_EOL;
+            
+            // Test d'envoi simple
+            try {
+                \Illuminate\Support\Facades\Mail::raw('Test email debug - ' . date('Y-m-d H:i:s'), function(\$message) {
+                    \$message->to('amazighishoop@gmail.com')->subject('Test Debug Laravel');
+                });
+                echo 'TEST EMAIL: ENVOYÉ EN MODE LOG ✅' . PHP_EOL;
+            } catch (Exception \$e) {
+                echo 'ERREUR EMAIL: ' . \$e->getMessage() . PHP_EOL;
+                echo 'STACK TRACE: ' . \$e->getTraceAsString() . PHP_EOL;
+            }
         " || echo "⚠️ Test config email échoué"
     else
         echo "❌ Impossible de se connecter à la base de données"
