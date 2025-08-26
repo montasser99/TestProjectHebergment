@@ -137,9 +137,14 @@ ENVEOF
     
     # Configuration Resend API avec variables Railway
     echo "📧 Configuration Resend avec variables Railway..."
+    echo "🔍 Variables disponibles:"
+    echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..." 
+    echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
+    
     sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
     sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
+    
     echo "✅ Resend configuré avec package officiel Laravel"
 fi
 
@@ -204,8 +209,17 @@ php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cac
 
 # Forcer le mode Resend après nettoyage cache
 echo "📧 Force mode Resend après nettoyage..."
+echo "🔍 Vérification des variables après cache clear:"
+echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..."
+echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
+
 sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
+sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
+
+echo "📋 Configuration .env finale:"
+grep -E "MAIL_|RESEND_" .env | head -5
+
 echo "✅ Mode Resend forcé avec package officiel Laravel"
 
 # Supprimer le lien/dossier existant s'il y en a un
@@ -288,6 +302,14 @@ if [ -n "$MYSQLHOST" ]; then
         echo "🌱 Seedeur des données..."
         DB_CONNECTION=mysql DB_HOST="$MYSQLHOST" DB_PORT="$MYSQLPORT" DB_DATABASE="$MYSQLDATABASE" DB_USERNAME="$MYSQLUSER" DB_PASSWORD="$MYSQLPASSWORD" php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Seeder déjà exécuté"
         echo "✅ Données seedées"
+        
+        # Test de la configuration email
+        echo "📧 Test de la configuration email Resend..."
+        php artisan tinker --execute="
+            echo 'MAIL_MAILER: ' . config('mail.default') . PHP_EOL;
+            echo 'RESEND_API_KEY: ' . (config('services.resend.key') ? substr(config('services.resend.key'), 0, 10) . '...' : 'NON CONFIGURÉ') . PHP_EOL;
+            echo 'MAIL_FROM_ADDRESS: ' . config('mail.from.address') . PHP_EOL;
+        " || echo "⚠️ Test config email échoué"
     else
         echo "❌ Impossible de se connecter à la base de données"
         echo "📋 Configuration actuelle:"
