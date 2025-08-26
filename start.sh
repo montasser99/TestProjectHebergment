@@ -207,7 +207,7 @@ echo "📧 Force mode Resend après nettoyage..."
 sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
 echo "✅ Mode Resend forcé avec package officiel Laravel"
-t
+
 # Supprimer le lien/dossier existant s'il y en a un
 if [ -e "public/storage" ]; then
     echo "🗂️ Suppression de l'ancien storage ($([ -L public/storage ] && echo 'lien' || echo 'dossier'))..."
