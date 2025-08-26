@@ -85,7 +85,7 @@ QUEUE_CONNECTION=database
 MAIL_MAILER=log
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
-RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx
+RESEND_API_KEY=${RESEND_API_KEY}
 ENVEOF
     
     # Configurer les variables Railway si elles existent
@@ -138,7 +138,7 @@ ENVEOF
     # Configuration Email temporaire (log pour éviter erreurs 500)
     echo "📧 Configuration Email en mode log..."
     sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
-    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx|' .env || echo "RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx" >> .env
+    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY=${RESEND_API_KEY}|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=amazighishoop@gmail.com|' .env
     echo "✅ Email configuré en mode log (évite erreurs 500)"
 fi
@@ -180,7 +180,7 @@ QUEUE_CONNECTION=database
 MAIL_MAILER=log
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
-RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx
+RESEND_API_KEY=${RESEND_API_KEY}
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
