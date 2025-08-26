@@ -104,7 +104,8 @@ ENVEOF
         echo "- DB_DATABASE=$MYSQLDATABASE"
         echo "- DB_USERNAME=$MYSQLUSER"
     fi
-    
+
+
     # Configurer l'URL de l'application Railway
     if [ -n "$RAILWAY_STATIC_URL" ]; then
         echo "🔧 Configuration URL Railway: https://$RAILWAY_STATIC_URL"
@@ -139,11 +140,11 @@ ENVEOF
     echo "📧 Configuration Resend avec variables Railway..."
     echo "🔍 Variables disponibles:"
     echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..." 
-    echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
+    echo "  - MAIL_FROM_ADDRESS: onboarding@resend.dev"
     
     sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
     sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
+    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"onboarding@resend.dev"'|' .env
     
     echo "✅ Resend configuré avec package officiel Laravel"
 fi
@@ -211,11 +212,11 @@ php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cac
 echo "📧 Force mode Resend après nettoyage..."
 echo "🔍 Vérification des variables après cache clear:"
 echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..."
-echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
+echo "  - MAIL_FROM_ADDRESS: onboarding@resend.dev"
 
 sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
+sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"onboarding@resend.dev"'|' .env
 
 echo "📋 Configuration .env finale:"
 grep -E "MAIL_|RESEND_" .env | head -5
