@@ -82,7 +82,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=smtp
+MAIL_MAILER=log
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=${MAIL_USERNAME}
@@ -131,6 +131,12 @@ ENVEOF
         sed -i "s|APP_FORCE_HTTPS=.*|APP_FORCE_HTTPS=true|" .env || echo "APP_FORCE_HTTPS=true" >> .env
         sed -i "s|APP_ENV=.*|APP_ENV=production|" .env
         
+        # Fix RAILWAY_STATIC_URL si malformé
+        if [ "$RAILWAY_STATIC_URL" = "amazighi-shop.up.railway" ]; then
+            echo "⚠️ RAILWAY_STATIC_URL corrigé: .app ajouté"
+            export RAILWAY_STATIC_URL="amazighi-shop.up.railway.app"
+        fi
+        
         # Configurer les cookies de session pour HTTPS en production
         sed -i 's|SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|' .env
         sed -i 's|SESSION_SAME_SITE=.*|SESSION_SAME_SITE=lax|' .env
@@ -147,7 +153,7 @@ ENVEOF
     echo "  - MAIL_USERNAME: ${MAIL_USERNAME}"
     echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}"
     
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
     sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp.gmail.com|' .env
     sed -i 's|MAIL_PORT=.*|MAIL_PORT=587|' .env
     sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"${MAIL_USERNAME}"'|' .env
@@ -192,7 +198,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=smtp
+MAIL_MAILER=log
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=${MAIL_USERNAME}
@@ -228,7 +234,7 @@ echo "🔍 Vérification des variables après cache clear:"
 echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..."
 echo "  - MAIL_FROM_ADDRESS: montabwi@gmail.com"
 
-sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
+sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
 sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"montabwi@gmail.com"'|' .env
 
