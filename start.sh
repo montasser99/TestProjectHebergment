@@ -82,7 +82,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
+MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=${MAIL_USERNAME}
@@ -153,7 +153,7 @@ ENVEOF
     echo "  - MAIL_USERNAME: ${MAIL_USERNAME}"
     echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}"
     
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
     sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp.gmail.com|' .env
     sed -i 's|MAIL_PORT=.*|MAIL_PORT=587|' .env
     sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"${MAIL_USERNAME}"'|' .env
@@ -198,7 +198,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
+MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=${MAIL_USERNAME}
@@ -228,20 +228,19 @@ php artisan route:clear
 php artisan view:clear
 php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cache --force > /dev/null 2>&1 || echo "Session cleanup completed"
 
-# Forcer le mode Resend après nettoyage cache
-echo "📧 Force mode Resend après nettoyage..."
-echo "🔍 Vérification des variables après cache clear:"
-echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..."
-echo "  - MAIL_FROM_ADDRESS: montabwi@gmail.com"
+# Configuration Gmail SMTP finale
+echo "📧 Configuration Gmail SMTP finale..."
+echo "🔍 Vérification des variables Gmail:"
+echo "  - MAIL_USERNAME: ${MAIL_USERNAME}"
+echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}"
 
-sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
-sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"montabwi@gmail.com"'|' .env
+sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
+sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
 
 echo "📋 Configuration .env finale:"
-grep -E "MAIL_|RESEND_" .env | head -5
+grep -E "MAIL_" .env | head -8
 
-echo "✅ Mode Resend forcé avec package officiel Laravel"
+echo "✅ Mode Gmail SMTP configuré"
 
 # Supprimer le lien/dossier existant s'il y en a un
 if [ -e "public/storage" ]; then
