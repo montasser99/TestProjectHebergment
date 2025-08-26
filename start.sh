@@ -82,10 +82,14 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=resend
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
+MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
-RESEND_API_KEY=${RESEND_API_KEY}
 ENVEOF
     
     # Configurer les variables Railway si elles existent
@@ -136,17 +140,22 @@ ENVEOF
         sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
     
-    # Configuration Resend API avec variables Railway
-    echo "📧 Configuration Resend avec variables Railway..."
-    echo "🔍 Variables disponibles:"
-    echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..." 
-    echo "  - MAIL_FROM_ADDRESS: onboarding@resend.dev"
+    # Configuration Gmail SMTP
+    echo "📧 Configuration Gmail SMTP..."
+    echo "🔍 Configuration Gmail depuis Railway:"
+    echo "  - MAIL_HOST: smtp.gmail.com"
+    echo "  - MAIL_USERNAME: ${MAIL_USERNAME}"
+    echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}"
     
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
-    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"onboarding@resend.dev"'|' .env
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
+    sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp.gmail.com|' .env
+    sed -i 's|MAIL_PORT=.*|MAIL_PORT=587|' .env
+    sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"${MAIL_USERNAME}"'|' .env
+    sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"${MAIL_PASSWORD}"'|' .env
+    sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|' .env
+    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
     
-    echo "✅ Resend configuré avec package officiel Laravel"
+    echo "✅ Gmail SMTP configuré avec variables Railway"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .enve
@@ -183,18 +192,23 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=resend
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
+MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
-RESEND_API_KEY=${RESEND_API_KEY}
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
-# Installer le package officiel Resend Laravel
-echo "📦 Installation du package officiel Resend Laravel..."
-composer require resend/resend-laravel --no-interaction --prefer-dist || echo "⚠️ Erreur installation resend-laravel"
-echo "✅ Package resend/resend-laravel installé"
+# Supprimer les packages Resend (on utilise Gmail SMTP maintenant)
+echo "🗑️ Suppression des packages Resend..."
+composer remove resend/resend-laravel --no-interaction > /dev/null 2>&1 || echo "resend-laravel déjà supprimé"
+composer remove resend/resend-php --no-interaction > /dev/null 2>&1 || echo "resend-php déjà supprimé"
+echo "✅ Packages Resend supprimés - Gmail SMTP actif"
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."
@@ -212,11 +226,11 @@ php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cac
 echo "📧 Force mode Resend après nettoyage..."
 echo "🔍 Vérification des variables après cache clear:"
 echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..."
-echo "  - MAIL_FROM_ADDRESS: onboarding@resend.dev"
+echo "  - MAIL_FROM_ADDRESS: montabwi@gmail.com"
 
-sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
+sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"onboarding@resend.dev"'|' .env
+sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"montabwi@gmail.com"'|' .env
 
 echo "📋 Configuration .env finale:"
 grep -E "MAIL_|RESEND_" .env | head -5
@@ -305,32 +319,27 @@ if [ -n "$MYSQLHOST" ]; then
         echo "✅ Données seedées"
         
         # Test de la configuration email
-        echo "📧 Test de la configuration email RESEND..."
+        echo "📧 Test de la configuration Gmail SMTP..."
         php artisan tinker --execute="
             echo 'MAIL_MAILER: ' . config('mail.default') . PHP_EOL;
+            echo 'MAIL_HOST: ' . config('mail.mailers.smtp.host') . PHP_EOL;
+            echo 'MAIL_PORT: ' . config('mail.mailers.smtp.port') . PHP_EOL;
+            echo 'MAIL_USERNAME: ' . config('mail.mailers.smtp.username') . PHP_EOL;
             echo 'MAIL_FROM_ADDRESS: ' . config('mail.from.address') . PHP_EOL;
-            echo 'RESEND_API_KEY: ' . (env('RESEND_API_KEY') ? substr(env('RESEND_API_KEY'), 0, 15) . '...' : 'NON DÉFINIE') . PHP_EOL;
-            echo '⚠️  MODE TEST RESEND: Emails uniquement vers montabwi@gmail.com' . PHP_EOL;
-            echo '🎯  TESTEZ RESET PASSWORD AVEC: montabwi@gmail.com UNIQUEMENT!' . PHP_EOL;
+            echo '✅ Gmail SMTP: Envoi vers tous les emails possible!' . PHP_EOL;
             
-            // Vérifier la config des mailers
-            echo 'MAILER RESEND CONFIG: ' . json_encode(config('mail.mailers.resend')) . PHP_EOL;
-            
-            // Test d'envoi simple avec Resend
+            // Test d'envoi simple avec Gmail SMTP
             try {
-                \Illuminate\Support\Facades\Mail::raw('Test RESEND debug - ' . date('Y-m-d H:i:s'), function(\$message) {
+                \Illuminate\Support\Facades\Mail::raw('Test Gmail SMTP - ' . date('Y-m-d H:i:s'), function(\$message) {
                     \$message->from(config('mail.from.address'), 'AMAZIGHI SHOP TEST')
-                           ->to('montabwi@gmail.com')
-                           ->subject('Test RESEND API Laravel');
+                           ->to(config('mail.mailers.smtp.username'))
+                           ->subject('Test Gmail SMTP Laravel');
                 });
-                echo 'TEST EMAIL RESEND: ENVOYÉ AVEC SUCCÈS ✅' . PHP_EOL;
+                echo 'TEST EMAIL GMAIL: ENVOYÉ AVEC SUCCÈS ✅' . PHP_EOL;
             } catch (Exception \$e) {
-                echo 'ERREUR EMAIL RESEND: ' . \$e->getMessage() . PHP_EOL;
+                echo 'ERREUR EMAIL GMAIL: ' . \$e->getMessage() . PHP_EOL;
                 echo 'CLASSE ERREUR: ' . get_class(\$e) . PHP_EOL;
                 echo 'CODE ERREUR: ' . \$e->getCode() . PHP_EOL;
-                if (method_exists(\$e, 'getResponse')) {
-                    echo 'RESPONSE: ' . \$e->getResponse() . PHP_EOL;
-                }
             }
         " || echo "⚠️ Test config email échoué"
     else
