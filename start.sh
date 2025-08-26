@@ -90,7 +90,7 @@ MAIL_PASSWORD=nSJp1mgZBVwq6Yd7
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
-ENVEOFe
+ENVEOF
     
     # Configurer les variables Railway si elles existent
     if [ -n "$MYSQLHOST" ]; then
