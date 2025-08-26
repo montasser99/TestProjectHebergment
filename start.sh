@@ -309,6 +309,7 @@ if [ -n "$MYSQLHOST" ]; then
             echo 'MAIL_MAILER: ' . config('mail.default') . PHP_EOL;
             echo 'MAIL_FROM_ADDRESS: ' . config('mail.from.address') . PHP_EOL;
             echo 'RESEND_API_KEY: ' . (env('RESEND_API_KEY') ? substr(env('RESEND_API_KEY'), 0, 15) . '...' : 'NON DÉFINIE') . PHP_EOL;
+            echo '⚠️  MODE TEST RESEND: Emails uniquement vers montabwi@gmail.com' . PHP_EOL;
             
             // Vérifier la config des mailers
             echo 'MAILER RESEND CONFIG: ' . json_encode(config('mail.mailers.resend')) . PHP_EOL;
@@ -317,7 +318,7 @@ if [ -n "$MYSQLHOST" ]; then
             try {
                 \Illuminate\Support\Facades\Mail::raw('Test RESEND debug - ' . date('Y-m-d H:i:s'), function(\$message) {
                     \$message->from(config('mail.from.address'), 'AMAZIGHI SHOP TEST')
-                           ->to('amazighishoop@gmail.com')
+                           ->to('montabwi@gmail.com')
                            ->subject('Test RESEND API Laravel');
                 });
                 echo 'TEST EMAIL RESEND: ENVOYÉ AVEC SUCCÈS ✅' . PHP_EOL;
