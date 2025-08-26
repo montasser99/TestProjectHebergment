@@ -83,14 +83,14 @@ CACHE_STORE=database
 QUEUE_CONNECTION=database
 
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp-relay.sendinblue.com
 MAIL_PORT=587
-MAIL_USERNAME=
-MAIL_PASSWORD=
+MAIL_USERNAME=95ac23001@smtp-brevo.com
+MAIL_PASSWORD=nSJp1mgZBVwq6Yd7
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}
+MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
-ENVEOF
+ENVEOFe
     
     # Configurer les variables Railway si elles existent
     if [ -n "$MYSQLHOST" ]; then
@@ -139,13 +139,13 @@ ENVEOF
         sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
     
-    # Configurer SMTP si les variables sont définies
-    if [ -n "$MAIL_USERNAME" ]; then
-        echo "📧 Configuration SMTP..."
-        sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"$MAIL_USERNAME"'|' .env
-        sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"$MAIL_PASSWORD"'|' .env
-        echo "✅ SMTP configuré avec $MAIL_USERNAME"
-    fi
+    # Configuration SMTP Brevo
+    echo "📧 Configuration SMTP Brevo..."
+    sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp-relay.sendinblue.com|' .env
+    sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME=95ac23001@smtp-brevo.com|' .env
+    sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD=nSJp1mgZBVwq6Yd7|' .env
+    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=amazighishoop@gmail.com|' .env
+    echo "✅ SMTP Brevo configuré"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .env
@@ -183,12 +183,12 @@ CACHE_STORE=database
 QUEUE_CONNECTION=database
 
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp-relay.sendinblue.com
 MAIL_PORT=587
-MAIL_USERNAME=${MAIL_USERNAME}
-MAIL_PASSWORD=${MAIL_PASSWORD}
+MAIL_USERNAME=95ac23001@smtp-brevo.com
+MAIL_PASSWORD=nSJp1mgZBVwq6Yd7
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}
+MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
