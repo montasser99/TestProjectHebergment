@@ -68,7 +68,7 @@ class RegisteredUserController extends Controller
         } catch (\Exception $e) {
             // En cas d'erreur d'envoi d'email
             $verification->delete();
-            
+           
             return back()->withErrors([
                 'email' => 'Impossible d\'envoyer l\'email de vérification. Veuillez réessayer.'
             ])->withInput();

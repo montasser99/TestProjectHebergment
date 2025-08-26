@@ -63,7 +63,7 @@ class PasswordResetLinkController extends Controller
         } catch (\Exception $e) {
             // En cas d'erreur d'envoi d'email
             $verification->delete();
-            
+       
             throw ValidationException::withMessages([
                 'email' => ['Impossible d\'envoyer l\'email de vérification. Veuillez réessayer.'],
             ]);
@@ -153,4 +153,5 @@ class PasswordResetLinkController extends Controller
             ]);
         }
     }
+
 }
