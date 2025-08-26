@@ -83,7 +83,7 @@ CACHE_STORE=database
 QUEUE_CONNECTION=database
 
 MAIL_MAILER=resend
-MAIL_FROM_ADDRESS=amazighishoop@gmail.com
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-onboarding@resend.dev}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
 ENVEOF
@@ -139,7 +139,7 @@ ENVEOF
     echo "📧 Configuration Resend avec variables Railway..."
     sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
     sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}"'|' .env
+    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
     echo "✅ Resend configuré avec package officiel Laravel"
 fi
 
@@ -178,7 +178,7 @@ CACHE_STORE=database
 QUEUE_CONNECTION=database
 
 MAIL_MAILER=resend
-MAIL_FROM_ADDRESS=amazighishoop@gmail.com
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-onboarding@resend.dev}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
 EOF
