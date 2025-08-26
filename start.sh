@@ -136,11 +136,11 @@ ENVEOF
     fi
     
     # Configuration Resend API avec variables Railway
-    echo "📧 Configuration Resend API..."
+    echo "📧 Configuration Resend avec variables Railway..."
     sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
     sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}"'|' .env
-    echo "✅ Resend configuré avec clé: ${RESEND_API_KEY:0:10}..."
+    echo "✅ Resend configuré (send-only API key)"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .enve
@@ -185,10 +185,15 @@ EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
-# Installer le package Resend pour Laravel
-echo "📦 Installation du package Resend..."
-composer require symfony/resend-mailer --no-interaction --prefer-dist || echo "⚠️ Erreur installation Resend"
-echo "✅ Package Resend installé"
+# Installer le package Resend si pas déjà présent
+echo "📦 Vérification package Resend..."
+if ! php -r "try { class_exists('Symfony\Component\Mailer\Transport\Dsn'); echo 'symfony-mailer-ok'; } catch (Exception \$e) { echo 'need-install'; }" | grep -q "symfony-mailer-ok"; then
+    echo "Installation symfony/mailer..."
+    composer require symfony/mailer --no-interaction --prefer-dist || echo "⚠️ Erreur installation symfony/mailer"
+fi
+
+# Éviter d'installer resend-mailer spécifique qui cause des problèmes
+echo "✅ Configuration Resend via variables d'environnement uniquement"
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."
@@ -205,7 +210,8 @@ php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cac
 # Forcer le mode Resend après nettoyage cache
 echo "📧 Force mode Resend après nettoyage..."
 sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
-echo "✅ Mode Resend forcé"
+sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
+echo "✅ Mode Resend forcé (send-only)"
 
 # Supprimer le lien/dossier existant s'il y en a un
 if [ -e "public/storage" ]; then
