@@ -310,6 +310,7 @@ if [ -n "$MYSQLHOST" ]; then
             echo 'MAIL_FROM_ADDRESS: ' . config('mail.from.address') . PHP_EOL;
             echo 'RESEND_API_KEY: ' . (env('RESEND_API_KEY') ? substr(env('RESEND_API_KEY'), 0, 15) . '...' : 'NON DÉFINIE') . PHP_EOL;
             echo '⚠️  MODE TEST RESEND: Emails uniquement vers montabwi@gmail.com' . PHP_EOL;
+            echo '🎯  TESTEZ RESET PASSWORD AVEC: montabwi@gmail.com UNIQUEMENT!' . PHP_EOL;
             
             // Vérifier la config des mailers
             echo 'MAILER RESEND CONFIG: ' . json_encode(config('mail.mailers.resend')) . PHP_EOL;
