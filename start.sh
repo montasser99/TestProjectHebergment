@@ -82,7 +82,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
+MAIL_MAILER=resend
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
@@ -137,10 +137,10 @@ ENVEOF
     
     # Configuration Resend API avec variables Railway
     echo "📧 Configuration Resend avec variables Railway..."
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
     sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}"'|' .env
-    echo "✅ Resend configuré (send-only API key)"
+    echo "✅ Resend configuré avec package officiel Laravel"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .enve
@@ -177,7 +177,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
+MAIL_MAILER=resend
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
@@ -185,11 +185,10 @@ EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
-# Supprimer tous les packages email pour éviter erreurs 500
-echo "🗑️ Suppression de tous les packages email problématiques..."
-composer remove symfony/resend-mailer --no-interaction > /dev/null 2>&1 || echo "resend-mailer déjà supprimé"
-composer remove resend/resend-php --no-interaction > /dev/null 2>&1 || echo "resend-php déjà supprimé"
-echo "✅ Mode log pur - aucun package email externe"
+# Installer le package officiel Resend Laravel
+echo "📦 Installation du package officiel Resend Laravel..."
+composer require resend/resend-laravel --no-interaction --prefer-dist || echo "⚠️ Erreur installation resend-laravel"
+echo "✅ Package resend/resend-laravel installé"
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."
@@ -205,9 +204,9 @@ php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cac
 
 # Forcer le mode Resend après nettoyage cache
 echo "📧 Force mode Resend après nettoyage..."
-sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
+sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-echo "✅ Mode Resend forcé (send-only)"
+echo "✅ Mode Resend forcé avec package officiel Laravel"
 t
 # Supprimer le lien/dossier existant s'il y en a un
 if [ -e "public/storage" ]; then
