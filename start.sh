@@ -146,24 +146,45 @@ ENVEOF
         sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
     
-    # Configuration Gmail SMTP
-    echo "📧 Configuration Gmail SMTP..."
-    echo "🔍 Configuration Gmail depuis Railway:"
-    echo "  - MAIL_HOST: smtp.gmail.com"
-    echo "  - MAIL_USERNAME: ${MAIL_USERNAME}"
-    echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}"
+    # Configuration SMTP avec fallback pour Railway
+    echo "📧 Configuration SMTP pour Railway..."
     
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
-    sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp.gmail.com|' .env
-    sed -i 's|MAIL_PORT=.*|MAIL_PORT=465|' .env
-    sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"${MAIL_USERNAME}"'|' .env
-    sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"${MAIL_PASSWORD}"'|' .env
-    sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=ssl|' .env
-    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
+    # Si Mailgun est configuré, utiliser Mailgun
+    if [ -n "$MAILGUN_DOMAIN" ] && [ -n "$MAILGUN_SECRET" ]; then
+        echo "🔍 Configuration Mailgun détectée"
+        sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=mailgun|' .env
+        sed -i 's|MAILGUN_DOMAIN=.*|MAILGUN_DOMAIN='"${MAILGUN_DOMAIN}"'|' .env || echo "MAILGUN_DOMAIN=${MAILGUN_DOMAIN}" >> .env
+        sed -i 's|MAILGUN_SECRET=.*|MAILGUN_SECRET='"${MAILGUN_SECRET}"'|' .env || echo "MAILGUN_SECRET=${MAILGUN_SECRET}" >> .env
+        sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
+        echo "✅ Mailgun configuré"
+    
+    # Sinon essayer SendGrid
+    elif [ -n "$SENDGRID_API_KEY" ]; then
+        echo "🔍 Configuration SendGrid détectée"  
+        sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
+        sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp.sendgrid.net|' .env
+        sed -i 's|MAIL_PORT=.*|MAIL_PORT=587|' .env
+        sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME=apikey|' .env
+        sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"${SENDGRID_API_KEY}"'|' .env
+        sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|' .env
+        sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
+        echo "✅ SendGrid configuré"
+    
+    # Sinon utiliser Mailtrap pour les tests
+    else
+        echo "⚠️ Aucun service email premium détecté - utilisation fallback Mailtrap"
+        sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
+        sed -i 's|MAIL_HOST=.*|MAIL_HOST=sandbox.smtp.mailtrap.io|' .env
+        sed -i 's|MAIL_PORT=.*|MAIL_PORT=2525|' .env
+        sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"${MAILTRAP_USERNAME:-dummy}"'|' .env
+        sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"${MAILTRAP_PASSWORD:-dummy}"'|' .env
+        sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|' .env
+        sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
+        echo "⚠️ Mode test Mailtrap - emails ne seront pas livrés aux vrais destinataires"
+    fi
+    
+    # Configuration commune
     sed -i 's|MAIL_TIMEOUT=.*|MAIL_TIMEOUT=30|' .env || echo "MAIL_TIMEOUT=30" >> .env
-    sed -i 's|MAIL_VERIFY_PEER=.*|MAIL_VERIFY_PEER=false|' .env || echo "MAIL_VERIFY_PEER=false" >> .env
-    
-    echo "✅ Gmail SMTP configuré avec variables Railway"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .enve
@@ -200,16 +221,15 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=465
+MAIL_MAILER=log
+MAIL_HOST=localhost
+MAIL_PORT=1025
 MAIL_USERNAME=${MAIL_USERNAME}
 MAIL_PASSWORD=${MAIL_PASSWORD}
-MAIL_ENCRYPTION=ssl
+MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 MAIL_TIMEOUT=30
-MAIL_VERIFY_PEER=false
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
