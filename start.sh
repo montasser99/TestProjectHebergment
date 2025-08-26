@@ -82,14 +82,10 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=smtp
-MAIL_HOST=smtp-relay.sendinblue.com
-MAIL_PORT=587
-MAIL_USERNAME=95ac23001@smtp-brevo.com
-MAIL_PASSWORD=nSJp1mgZBVwq6Yd7
-MAIL_ENCRYPTION=tls
+MAIL_MAILER=resend
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
+RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx
 ENVEOF
     
     # Configurer les variables Railway si elles existent
@@ -139,13 +135,12 @@ ENVEOF
         sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
     
-    # Configuration SMTP Brevo
-    echo "📧 Configuration SMTP Brevo..."
-    sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp-relay.sendinblue.com|' .env
-    sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME=95ac23001@smtp-brevo.com|' .env
-    sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD=nSJp1mgZBVwq6Yd7|' .env
+    # Configuration Resend API
+    echo "📧 Configuration Resend API..."
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
+    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx|' .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=amazighishoop@gmail.com|' .env
-    echo "✅ SMTP Brevo configuré"
+    echo "✅ Resend API configuré"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .env
@@ -182,16 +177,20 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=smtp
-MAIL_HOST=smtp-relay.sendinblue.com
-MAIL_PORT=587
-MAIL_USERNAME=95ac23001@smtp-brevo.com
-MAIL_PASSWORD=nSJp1mgZBVwq6Yd7
-MAIL_ENCRYPTION=tls
+MAIL_MAILER=resend
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
+RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
+fi
+
+# Installer Resend si pas déjà installé
+echo "📦 Installation du package Resend..."
+if ! php -r "try { require 'vendor/resend/resend-php/src/Resend.php'; echo 'found'; } catch (Exception \$e) { echo 'notfound'; }" | grep -q "found"; then
+    composer require resend/resend-php --no-interaction --prefer-dist || echo "⚠️ Erreur installation Resend"
+else
+    echo "✅ Package Resend déjà installé"
 fi
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
