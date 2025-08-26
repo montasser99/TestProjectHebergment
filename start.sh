@@ -82,7 +82,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
+MAIL_MAILER=resend
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
@@ -135,12 +135,12 @@ ENVEOF
         sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
     
-    # Configuration Email temporaire (log pour éviter erreurs 500)
-    echo "📧 Configuration Email en mode log..."
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
-    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY=${RESEND_API_KEY}|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
-    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=amazighishoop@gmail.com|' .env
-    echo "✅ Email configuré en mode log (évite erreurs 500)"
+    # Configuration Resend API avec variables Railway
+    echo "📧 Configuration Resend API..."
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
+    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
+    sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-amazighishoop@gmail.com}"'|' .env
+    echo "✅ Resend configuré avec clé: ${RESEND_API_KEY:0:10}..."
 fi
 
 # Vérifier et corriger la syntaxe du fichier .env
@@ -177,7 +177,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
+MAIL_MAILER=resend
 MAIL_FROM_ADDRESS=amazighishoop@gmail.com
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
@@ -185,11 +185,10 @@ EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
-# Supprimer les packages email problématiques
-echo "🗑️ Suppression des packages email problématiques..."
-composer remove symfony/resend-mailer --no-interaction > /dev/null 2>&1 || echo "Package resend-mailer déjà supprimé"
-composer remove resend/resend-php --no-interaction > /dev/null 2>&1 || echo "Package resend-php déjà supprimé"
-echo "✅ Packages email supprimés"
+# Installer le package Resend pour Laravel
+echo "📦 Installation du package Resend..."
+composer require symfony/resend-mailer --no-interaction --prefer-dist || echo "⚠️ Erreur installation Resend"
+echo "✅ Package Resend installé"
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."
@@ -203,10 +202,10 @@ php artisan route:clear
 php artisan view:clear
 php artisan session:table > /dev/null 2>&1 && php artisan db:wipe --database=cache --force > /dev/null 2>&1 || echo "Session cleanup completed"
 
-# Forcer le mode log après nettoyage cache
-echo "📧 Force mode log après nettoyage..."
-sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
-echo "✅ Mode log forcé"
+# Forcer le mode Resend après nettoyage cache
+echo "📧 Force mode Resend après nettoyage..."
+sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
+echo "✅ Mode Resend forcé"
 
 # Supprimer le lien/dossier existant s'il y en a un
 if [ -e "public/storage" ]; then
