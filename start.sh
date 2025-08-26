@@ -84,10 +84,10 @@ QUEUE_CONNECTION=database
 
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
+MAIL_PORT=465
 MAIL_USERNAME=${MAIL_USERNAME}
 MAIL_PASSWORD=${MAIL_PASSWORD}
-MAIL_ENCRYPTION=tls
+MAIL_ENCRYPTION=ssl
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 ENVEOF
@@ -155,11 +155,13 @@ ENVEOF
     
     sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
     sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp.gmail.com|' .env
-    sed -i 's|MAIL_PORT=.*|MAIL_PORT=587|' .env
+    sed -i 's|MAIL_PORT=.*|MAIL_PORT=465|' .env
     sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"${MAIL_USERNAME}"'|' .env
     sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"${MAIL_PASSWORD}"'|' .env
-    sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|' .env
+    sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=ssl|' .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
+    sed -i 's|MAIL_TIMEOUT=.*|MAIL_TIMEOUT=30|' .env || echo "MAIL_TIMEOUT=30" >> .env
+    sed -i 's|MAIL_VERIFY_PEER=.*|MAIL_VERIFY_PEER=false|' .env || echo "MAIL_VERIFY_PEER=false" >> .env
     
     echo "✅ Gmail SMTP configuré avec variables Railway"
 fi
@@ -200,12 +202,14 @@ QUEUE_CONNECTION=database
 
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
+MAIL_PORT=465
 MAIL_USERNAME=${MAIL_USERNAME}
 MAIL_PASSWORD=${MAIL_PASSWORD}
-MAIL_ENCRYPTION=tls
+MAIL_ENCRYPTION=ssl
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
+MAIL_TIMEOUT=30
+MAIL_VERIFY_PEER=false
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
