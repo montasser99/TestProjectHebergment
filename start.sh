@@ -143,7 +143,7 @@ ENVEOF
     echo "✅ Resend configuré avec clé: ${RESEND_API_KEY:0:10}..."
 fi
 
-# Vérifier et corriger la syntaxe du fichier .env
+# Vérifier et corriger la syntaxe du fichier .enve
 echo "🔧 Vérification de la syntaxe .env..."
 if [ -f ".env" ]; then
     # Créer une sauvegarde
