@@ -138,9 +138,9 @@ ENVEOF
     # Configuration Resend API
     echo "📧 Configuration Resend API..."
     sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
-    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx|' .env
+    sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx|' .env || echo "RESEND_API_KEY=re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx" >> .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=amazighishoop@gmail.com|' .env
-    echo "✅ Resend API configuré"
+    echo "✅ Resend API configuré avec clé: re_LwfyEZdn_5TmMXByhbTCaatqGEXsk16cx"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .env
@@ -185,13 +185,9 @@ EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
-# Installer Resend si pas déjà installé
-echo "📦 Installation du package Resend..."
-if ! php -r "try { require 'vendor/resend/resend-php/src/Resend.php'; echo 'found'; } catch (Exception \$e) { echo 'notfound'; }" | grep -q "found"; then
-    composer require resend/resend-php --no-interaction --prefer-dist || echo "⚠️ Erreur installation Resend"
-else
-    echo "✅ Package Resend déjà installé"
-fi
+# Installer le bon transport Resend pour Laravel
+echo "📦 Installation du transport Resend..."
+composer require symfony/resend-mailer --no-interaction --prefer-dist || echo "⚠️ Erreur installation Resend transport"
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."
