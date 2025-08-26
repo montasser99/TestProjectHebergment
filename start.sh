@@ -82,8 +82,8 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
-MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-onboarding@resend.dev}
+MAIL_MAILER=resend
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
 ENVEOF
@@ -141,7 +141,7 @@ ENVEOF
     echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..." 
     echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
     
-    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
+    sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
     sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
     sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
     
@@ -182,8 +182,8 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
-MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-onboarding@resend.dev}
+MAIL_MAILER=resend
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
 RESEND_API_KEY=${RESEND_API_KEY}
 EOF
@@ -213,7 +213,7 @@ echo "🔍 Vérification des variables après cache clear:"
 echo "  - RESEND_API_KEY: ${RESEND_API_KEY:0:10}..."
 echo "  - MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"
 
-sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=log|' .env
+sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=resend|' .env
 sed -i 's|RESEND_API_KEY=.*|RESEND_API_KEY='"${RESEND_API_KEY}"'|' .env || echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env
 sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS:-onboarding@resend.dev}"'|' .env
 
@@ -304,21 +304,30 @@ if [ -n "$MYSQLHOST" ]; then
         echo "✅ Données seedées"
         
         # Test de la configuration email
-        echo "📧 Test de la configuration email en mode LOG..."
+        echo "📧 Test de la configuration email RESEND..."
         php artisan tinker --execute="
             echo 'MAIL_MAILER: ' . config('mail.default') . PHP_EOL;
             echo 'MAIL_FROM_ADDRESS: ' . config('mail.from.address') . PHP_EOL;
-            echo 'LOG_CHANNEL: ' . config('logging.default') . PHP_EOL;
+            echo 'RESEND_API_KEY: ' . (env('RESEND_API_KEY') ? substr(env('RESEND_API_KEY'), 0, 15) . '...' : 'NON DÉFINIE') . PHP_EOL;
             
-            // Test d'envoi simple
+            // Vérifier la config des mailers
+            echo 'MAILER RESEND CONFIG: ' . json_encode(config('mail.mailers.resend')) . PHP_EOL;
+            
+            // Test d'envoi simple avec Resend
             try {
-                \Illuminate\Support\Facades\Mail::raw('Test email debug - ' . date('Y-m-d H:i:s'), function(\$message) {
-                    \$message->to('amazighishoop@gmail.com')->subject('Test Debug Laravel');
+                \Illuminate\Support\Facades\Mail::raw('Test RESEND debug - ' . date('Y-m-d H:i:s'), function(\$message) {
+                    \$message->from(config('mail.from.address'), 'AMAZIGHI SHOP TEST')
+                           ->to('amazighishoop@gmail.com')
+                           ->subject('Test RESEND API Laravel');
                 });
-                echo 'TEST EMAIL: ENVOYÉ EN MODE LOG ✅' . PHP_EOL;
+                echo 'TEST EMAIL RESEND: ENVOYÉ AVEC SUCCÈS ✅' . PHP_EOL;
             } catch (Exception \$e) {
-                echo 'ERREUR EMAIL: ' . \$e->getMessage() . PHP_EOL;
-                echo 'STACK TRACE: ' . \$e->getTraceAsString() . PHP_EOL;
+                echo 'ERREUR EMAIL RESEND: ' . \$e->getMessage() . PHP_EOL;
+                echo 'CLASSE ERREUR: ' . get_class(\$e) . PHP_EOL;
+                echo 'CODE ERREUR: ' . \$e->getCode() . PHP_EOL;
+                if (method_exists(\$e, 'getResponse')) {
+                    echo 'RESPONSE: ' . \$e->getResponse() . PHP_EOL;
+                }
             }
         " || echo "⚠️ Test config email échoué"
     else
