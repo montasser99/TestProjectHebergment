@@ -57,8 +57,15 @@ export default function VerifyEmail({ email, type, emailjs_data, flash }) {
     }, []);
 
     const sendEmailViaEmailJS = async (emailData) => {
+        console.log('🚀 Tentative d\'envoi EmailJS avec:', {
+            serviceId: EMAILJS_CONFIG.serviceId,
+            templateId: EMAILJS_CONFIG.templateId,
+            publicKey: EMAILJS_CONFIG.publicKey ? 'PRESENT' : 'MISSING',
+            emailData
+        });
+        
         try {
-            await emailjs.send(
+            const result = await emailjs.send(
                 EMAILJS_CONFIG.serviceId,
                 EMAILJS_CONFIG.templateId,
                 {
@@ -69,9 +76,14 @@ export default function VerifyEmail({ email, type, emailjs_data, flash }) {
                 },
                 EMAILJS_CONFIG.publicKey
             );
-            console.log('Email envoyé avec succès via EmailJS');
+            console.log('✅ Email envoyé avec succès via EmailJS:', result);
         } catch (error) {
-            console.error('Erreur EmailJS:', error);
+            console.error('❌ Erreur EmailJS complète:', {
+                message: error.message,
+                status: error.status,
+                text: error.text,
+                error
+            });
         }
     };
 
