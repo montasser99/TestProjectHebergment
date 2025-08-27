@@ -19,13 +19,15 @@ export default function VerifyEmail({ email, type }) {
         publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY
     };
 
-    // Log de vérification des variables (masqué en production)
+    // Log de vérification des variables et données flash
     useEffect(() => {
         console.log('🔍 Variables EmailJS chargées:', {
             serviceId: EMAILJS_CONFIG.serviceId ? `${EMAILJS_CONFIG.serviceId.substring(0, 8)}...${EMAILJS_CONFIG.serviceId.slice(-3)}` : 'NOT SET',
             templateId: EMAILJS_CONFIG.templateId ? `${EMAILJS_CONFIG.templateId.substring(0, 9)}...${EMAILJS_CONFIG.templateId.slice(-3)}` : 'NOT SET',
             publicKey: EMAILJS_CONFIG.publicKey ? `${EMAILJS_CONFIG.publicKey.substring(0, 6)}...${EMAILJS_CONFIG.publicKey.slice(-3)}` : 'NOT SET'
         });
+        console.log('📦 Flash data reçu:', flash);
+        console.log('📧 EmailJS data disponible:', flash && flash.emailjs_data ? 'OUI' : 'NON');
     }, []);
     
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -46,7 +48,7 @@ export default function VerifyEmail({ email, type }) {
         }
 
         // Envoyer email via EmailJS si les données sont disponibles
-        if (flash.emailjs_data) {
+        if (flash && flash.emailjs_data) {
             sendEmailViaEmailJS(flash.emailjs_data);
         }
     }, []);
@@ -96,7 +98,7 @@ export default function VerifyEmail({ email, type }) {
                 setData('code', '');
                 
                 // Envoyer nouveau email via EmailJS si les données sont disponibles
-                if (page.props.flash.emailjs_data) {
+                if (page.props.flash && page.props.flash.emailjs_data) {
                     sendEmailViaEmailJS(page.props.flash.emailjs_data);
                 }
             },
