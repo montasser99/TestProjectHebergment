@@ -146,45 +146,27 @@ ENVEOF
         sed -i 's|TRUSTED_PROXIES=.*|TRUSTED_PROXIES=*|' .env
     fi
     
-    # Configuration SMTP avec fallback pour Railway
-    echo "📧 Configuration SMTP pour Railway..."
+    # Configuration EmailJS uniquement
+    echo "📧 Configuration EmailJS (emails envoyés via frontend)..."
     
-    # Si Mailgun est configuré, utiliser Mailgun
-    if [ -n "$MAILGUN_DOMAIN" ] && [ -n "$MAILGUN_SECRET" ]; then
-        echo "🔍 Configuration Mailgun détectée"
-        sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=mailgun|' .env
-        sed -i 's|MAILGUN_DOMAIN=.*|MAILGUN_DOMAIN='"${MAILGUN_DOMAIN}"'|' .env || echo "MAILGUN_DOMAIN=${MAILGUN_DOMAIN}" >> .env
-        sed -i 's|MAILGUN_SECRET=.*|MAILGUN_SECRET='"${MAILGUN_SECRET}"'|' .env || echo "MAILGUN_SECRET=${MAILGUN_SECRET}" >> .env
-        sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
-        echo "✅ Mailgun configuré"
+    # Vérification sécurisée des variables EmailJS
+    echo "🔍 Vérification des variables EmailJS depuis Railway:"
+    echo "  - VITE_EMAILJS_SERVICE_ID: ${VITE_EMAILJS_SERVICE_ID:+SET (${#VITE_EMAILJS_SERVICE_ID} chars)}${VITE_EMAILJS_SERVICE_ID:-NOT SET}"
+    echo "  - VITE_EMAILJS_TEMPLATE_ID: ${VITE_EMAILJS_TEMPLATE_ID:+SET (${#VITE_EMAILJS_TEMPLATE_ID} chars)}${VITE_EMAILJS_TEMPLATE_ID:-NOT SET}"
+    echo "  - VITE_EMAILJS_PUBLIC_KEY: ${VITE_EMAILJS_PUBLIC_KEY:+SET (${#VITE_EMAILJS_PUBLIC_KEY} chars)}${VITE_EMAILJS_PUBLIC_KEY:-NOT SET}"
     
-    # Sinon essayer SendGrid
-    elif [ -n "$SENDGRID_API_KEY" ]; then
-        echo "🔍 Configuration SendGrid détectée"  
-        sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
-        sed -i 's|MAIL_HOST=.*|MAIL_HOST=smtp.sendgrid.net|' .env
-        sed -i 's|MAIL_PORT=.*|MAIL_PORT=587|' .env
-        sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME=apikey|' .env
-        sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"${SENDGRID_API_KEY}"'|' .env
-        sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|' .env
-        sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
-        echo "✅ SendGrid configuré"
-    
-    # Sinon utiliser Mailtrap pour les tests
-    else
-        echo "⚠️ Aucun service email premium détecté - utilisation fallback Mailtrap"
-        sed -i 's|MAIL_MAILER=.*|MAIL_MAILER=smtp|' .env
-        sed -i 's|MAIL_HOST=.*|MAIL_HOST=sandbox.smtp.mailtrap.io|' .env
-        sed -i 's|MAIL_PORT=.*|MAIL_PORT=2525|' .env
-        sed -i 's|MAIL_USERNAME=.*|MAIL_USERNAME='"${MAILTRAP_USERNAME:-dummy}"'|' .env
-        sed -i 's|MAIL_PASSWORD=.*|MAIL_PASSWORD='"${MAILTRAP_PASSWORD:-dummy}"'|' .env
-        sed -i 's|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|' .env
-        sed -i 's|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS='"${MAIL_FROM_ADDRESS}"'|' .env
-        echo "⚠️ Mode test Mailtrap - emails ne seront pas livrés aux vrais destinataires"
+    # Affichage partiel sécurisé (premiers et derniers caractères)
+    if [ -n "$VITE_EMAILJS_SERVICE_ID" ]; then
+        echo "  - Service ID: ${VITE_EMAILJS_SERVICE_ID:0:8}...${VITE_EMAILJS_SERVICE_ID: -3}"
+    fi
+    if [ -n "$VITE_EMAILJS_TEMPLATE_ID" ]; then
+        echo "  - Template ID: ${VITE_EMAILJS_TEMPLATE_ID:0:9}...${VITE_EMAILJS_TEMPLATE_ID: -3}"
+    fi
+    if [ -n "$VITE_EMAILJS_PUBLIC_KEY" ]; then
+        echo "  - Public Key: ${VITE_EMAILJS_PUBLIC_KEY:0:6}...${VITE_EMAILJS_PUBLIC_KEY: -3}"
     fi
     
-    # Configuration commune
-    sed -i 's|MAIL_TIMEOUT=.*|MAIL_TIMEOUT=30|' .env || echo "MAIL_TIMEOUT=30" >> .env
+    echo "✅ EmailJS sera utilisé pour tous les envois d'emails"
 fi
 
 # Vérifier et corriger la syntaxe du fichier .enve
@@ -221,18 +203,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=mailgun
-MAIL_HOST=smtp.mailgun.org
-MAIL_PORT=587
-MAIL_USERNAME=postmaster@sandbox.mailgun.org
-MAIL_PASSWORD=
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-MAIL_FROM_NAME="AMAZIGHI SHOP"
-MAILGUN_DOMAIN=
-MAILGUN_SECRET=
-
-# Variables EmailJS pour le frontend
+# Variables EmailJS pour le frontend (uniquement nécessaires)
 VITE_EMAILJS_SERVICE_ID=${VITE_EMAILJS_SERVICE_ID}
 VITE_EMAILJS_TEMPLATE_ID=${VITE_EMAILJS_TEMPLATE_ID}
 VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY}
@@ -240,16 +211,12 @@ EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
-# Installer les packages email nécessaires
-echo "📦 Installation des packages email..."
-composer require mailgun/mailgun-php symfony/http-client symfony/mailgun-mailer --no-interaction > /dev/null 2>&1 || echo "Packages Mailgun déjà installés"
-
-# Installer EmailJS pour le frontend si pas déjà fait
+# Installer uniquement EmailJS pour le frontend (plus besoin de packages backend)
+echo "📧 Installation EmailJS frontend..."
 if [ ! -d "node_modules/@emailjs" ]; then
-    echo "📧 Installation EmailJS frontend..."
     npm install @emailjs/browser > /dev/null 2>&1 || echo "EmailJS déjà installé"
 fi
-echo "✅ Packages email installés (Backend + Frontend)"
+echo "✅ EmailJS installé - Envoi d'emails via frontend"
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."

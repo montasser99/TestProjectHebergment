@@ -18,6 +18,15 @@ export default function VerifyEmail({ email, type }) {
         templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
         publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY
     };
+
+    // Log de vérification des variables (masqué en production)
+    useEffect(() => {
+        console.log('🔍 Variables EmailJS chargées:', {
+            serviceId: EMAILJS_CONFIG.serviceId ? `${EMAILJS_CONFIG.serviceId.substring(0, 8)}...${EMAILJS_CONFIG.serviceId.slice(-3)}` : 'NOT SET',
+            templateId: EMAILJS_CONFIG.templateId ? `${EMAILJS_CONFIG.templateId.substring(0, 9)}...${EMAILJS_CONFIG.templateId.slice(-3)}` : 'NOT SET',
+            publicKey: EMAILJS_CONFIG.publicKey ? `${EMAILJS_CONFIG.publicKey.substring(0, 6)}...${EMAILJS_CONFIG.publicKey.slice(-3)}` : 'NOT SET'
+        });
+    }, []);
     
     const { data, setData, post, processing, errors, reset } = useForm({
         email: email,
