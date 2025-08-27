@@ -7,10 +7,10 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import emailjs from '@emailjs/browser';
 
-export default function VerifyEmail({ email, type }) {
+export default function VerifyEmail({ email, type, emailjs_data, flash }) {
     const { t, i18n } = useTranslation();
     const [resendCooldown, setResendCooldown] = useState(0);
-    const { flash } = usePage().props;
+    const pageFlash = usePage().props.flash;
     
     // Configuration EmailJS sécurisée avec variables d'environnement
     const EMAILJS_CONFIG = {
@@ -27,7 +27,9 @@ export default function VerifyEmail({ email, type }) {
             publicKey: EMAILJS_CONFIG.publicKey ? `${EMAILJS_CONFIG.publicKey.substring(0, 6)}...${EMAILJS_CONFIG.publicKey.slice(-3)}` : 'NOT SET'
         });
         console.log('📦 Flash data reçu:', flash);
-        console.log('📧 EmailJS data disponible:', flash && flash.emailjs_data ? 'OUI' : 'NON');
+        console.log('📦 Page Flash data reçu:', pageFlash);
+        console.log('📦 EmailJS data direct:', emailjs_data);
+        console.log('📧 EmailJS data disponible:', emailjs_data ? 'OUI (direct)' : (flash && flash.emailjs_data ? 'OUI (flash)' : (pageFlash && pageFlash.emailjs_data ? 'OUI (pageFlash)' : 'NON')));
     }, []);
     
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -47,9 +49,10 @@ export default function VerifyEmail({ email, type }) {
             i18n.changeLanguage(savedLanguage);
         }
 
-        // Envoyer email via EmailJS si les données sont disponibles
-        if (flash && flash.emailjs_data) {
-            sendEmailViaEmailJS(flash.emailjs_data);
+        // Envoyer email via EmailJS si les données sont disponibles (plusieurs sources possibles)
+        const emailData = emailjs_data || (flash && flash.emailjs_data) || (pageFlash && pageFlash.emailjs_data);
+        if (emailData) {
+            sendEmailViaEmailJS(emailData);
         }
     }, []);
 

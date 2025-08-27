@@ -82,7 +82,9 @@ class RegisteredUserController extends Controller
 
         return Inertia::render('Auth/VerifyEmail', [
             'email' => $email,
-            'type' => 'signup'
+            'type' => 'signup',
+            'emailjs_data' => session('emailjs_data'), // Passer les données directement
+            'flash' => session()->all() // Passer toutes les données flash
         ]);
     }
 

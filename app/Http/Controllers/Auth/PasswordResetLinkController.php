@@ -77,7 +77,9 @@ class PasswordResetLinkController extends Controller
 
         return Inertia::render('Auth/VerifyEmail', [
             'email' => $email,
-            'type' => 'reset_password'
+            'type' => 'reset_password',
+            'emailjs_data' => session('emailjs_data'), // Passer les données directement
+            'flash' => session()->all() // Passer toutes les données flash
         ]);
     }
 
