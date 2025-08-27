@@ -56,23 +56,17 @@ class RegisteredUserController extends Controller
             $userData
         );
 
-        // Envoyer l'email avec le code
-        try {
-            Mail::to($request->email)->send(
-                new EmailVerificationCode($verification->code, 'signup', $request->name)
-            );
-
-            return redirect()->route('verify.email.form', ['email' => $request->email])
-                           ->with('message', 'Un code de vérification a été envoyé à votre adresse email.');
-                           
-        } catch (\Exception $e) {
-            // En cas d'erreur d'envoi d'email
-            $verification->delete();
-           
-            return back()->withErrors([
-                'email' => 'Impossible d\'envoyer l\'email de vérification. Veuillez réessayer.'
-            ])->withInput();
-        }
+        // Retourner les données pour EmailJS
+        return redirect()->route('verify.email.form', ['email' => $request->email])
+                       ->with([
+                           'message' => 'Un code de vérification va être envoyé à votre adresse email.',
+                           'emailjs_data' => [
+                               'user_name' => $request->name,
+                               'user_email' => $request->email,
+                               'verification_code' => $verification->code,
+                               'verification_link' => route('verify.email.form', ['email' => $request->email])
+                           ]
+                       ]);
     }
 
     /**
@@ -159,18 +153,15 @@ class RegisteredUserController extends Controller
         // Récupérer le nom depuis les données utilisateur
         $userName = $existingVerification->user_data['name'] ?? null;
 
-        // Renvoyer l'email
-        try {
-            Mail::to($request->email)->send(
-                new EmailVerificationCode($verification->code, 'signup', $userName)
-            );
-
-            return back()->with('message', 'Un nouveau code de vérification a été envoyé.');
-            
-        } catch (\Exception $e) {
-            return back()->withErrors([
-                'email' => 'Impossible de renvoyer l\'email. Veuillez réessayer.'
-            ]);
-        }
+        // Retourner les données pour renvoyer via EmailJS
+        return back()->with([
+            'message' => 'Un nouveau code de vérification va être envoyé.',
+            'emailjs_data' => [
+                'user_name' => $userName,
+                'user_email' => $request->email,
+                'verification_code' => $verification->code,
+                'verification_link' => route('verify.email.form', ['email' => $request->email])
+            ]
+        ]);
     }
 }

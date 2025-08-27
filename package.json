@@ -15,6 +15,7 @@
         "postcss": "^8.4.31"
     },
     "dependencies": {
+        "@emailjs/browser": "^4.4.1",
         "@headlessui/react": "^2.0.0",
         "@heroicons/react": "^2.2.0",
         "@inertiajs/react": "^2.1.2",

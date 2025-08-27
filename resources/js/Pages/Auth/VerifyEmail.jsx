@@ -3,12 +3,21 @@ import AuthHeader from '@/Components/AuthHeader';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
+import emailjs from '@emailjs/browser';
 
 export default function VerifyEmail({ email, type }) {
     const { t, i18n } = useTranslation();
     const [resendCooldown, setResendCooldown] = useState(0);
+    const { flash } = usePage().props;
+    
+    // Configuration EmailJS sécurisée avec variables d'environnement
+    const EMAILJS_CONFIG = {
+        serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    };
     
     const { data, setData, post, processing, errors, reset } = useForm({
         email: email,
@@ -20,13 +29,37 @@ export default function VerifyEmail({ email, type }) {
     const submitRoute = isSignup ? 'verify.email.code' : 'password.verify.code';
     const resendRoute = isSignup ? 'resend.verification.code' : 'resend.password.code';
 
-    // Initialiser la langue depuis localStorage
+    // Initialiser EmailJS et envoyer email si données disponibles
     useEffect(() => {
         const savedLanguage = localStorage.getItem('language');
         if (savedLanguage && savedLanguage !== i18n.language) {
             i18n.changeLanguage(savedLanguage);
         }
+
+        // Envoyer email via EmailJS si les données sont disponibles
+        if (flash.emailjs_data) {
+            sendEmailViaEmailJS(flash.emailjs_data);
+        }
     }, []);
+
+    const sendEmailViaEmailJS = async (emailData) => {
+        try {
+            await emailjs.send(
+                EMAILJS_CONFIG.serviceId,
+                EMAILJS_CONFIG.templateId,
+                {
+                    to_email: emailData.user_email,
+                    user_name: emailData.user_name,
+                    verification_code: emailData.verification_code,
+                    verification_link: emailData.verification_link
+                },
+                EMAILJS_CONFIG.publicKey
+            );
+            console.log('Email envoyé avec succès via EmailJS');
+        } catch (error) {
+            console.error('Erreur EmailJS:', error);
+        }
+    };
 
     useEffect(() => {
         let interval;
@@ -49,9 +82,14 @@ export default function VerifyEmail({ email, type }) {
         post(route(resendRoute), {
             data: { email },
             preserveScroll: true,
-            onSuccess: () => {
+            onSuccess: (page) => {
                 setResendCooldown(60); // 60 secondes de cooldown
                 setData('code', '');
+                
+                // Envoyer nouveau email via EmailJS si les données sont disponibles
+                if (page.props.flash.emailjs_data) {
+                    sendEmailViaEmailJS(page.props.flash.emailjs_data);
+                }
             },
         });
     };

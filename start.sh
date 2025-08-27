@@ -221,24 +221,35 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-MAIL_MAILER=log
-MAIL_HOST=localhost
-MAIL_PORT=1025
-MAIL_USERNAME=${MAIL_USERNAME}
-MAIL_PASSWORD=${MAIL_PASSWORD}
-MAIL_ENCRYPTION=null
+MAIL_MAILER=mailgun
+MAIL_HOST=smtp.mailgun.org
+MAIL_PORT=587
+MAIL_USERNAME=postmaster@sandbox.mailgun.org
+MAIL_PASSWORD=
+MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 MAIL_FROM_NAME="AMAZIGHI SHOP"
-MAIL_TIMEOUT=30
+MAILGUN_DOMAIN=
+MAILGUN_SECRET=
+
+# Variables EmailJS pour le frontend
+VITE_EMAILJS_SERVICE_ID=${VITE_EMAILJS_SERVICE_ID}
+VITE_EMAILJS_TEMPLATE_ID=${VITE_EMAILJS_TEMPLATE_ID}
+VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY}
 EOF
     echo "✅ .env Railway créé avec les variables d'environnement"
 fi
 
-# Supprimer les packages Resend (on utilise Gmail SMTP maintenant)
-echo "🗑️ Suppression des packages Resend..."
-composer remove resend/resend-laravel --no-interaction > /dev/null 2>&1 || echo "resend-laravel déjà supprimé"
-composer remove resend/resend-php --no-interaction > /dev/null 2>&1 || echo "resend-php déjà supprimé"
-echo "✅ Packages Resend supprimés - Gmail SMTP actif"
+# Installer les packages email nécessaires
+echo "📦 Installation des packages email..."
+composer require mailgun/mailgun-php symfony/http-client symfony/mailgun-mailer --no-interaction > /dev/null 2>&1 || echo "Packages Mailgun déjà installés"
+
+# Installer EmailJS pour le frontend si pas déjà fait
+if [ ! -d "node_modules/@emailjs" ]; then
+    echo "📧 Installation EmailJS frontend..."
+    npm install @emailjs/browser > /dev/null 2>&1 || echo "EmailJS déjà installé"
+fi
+echo "✅ Packages email installés (Backend + Frontend)"
 
 # Générer la clé d'application (force à chaque déploiement pour invalider les anciennes sessions)
 echo "🔑 Génération de la clé d'application..."
